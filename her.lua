@@ -1,5 +1,7 @@
-if getgenv().Library then
-    getgenv().Library:Unload()
+if getgenv().Library and typeof(getgenv().Library.Unload) == "function" then
+    pcall(function()
+        getgenv().Library:Unload()
+    end)
 end
 
 local Library do 
