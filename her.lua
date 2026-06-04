@@ -1,7 +1,5 @@
-if getgenv().Library and typeof(getgenv().Library.Unload) == "function" then
-    pcall(function()
-        getgenv().Library:Unload()
-    end)
+if getgenv().Library then
+    getgenv().Library:Unload()
 end
 
 local Library do 
@@ -187,25 +185,26 @@ local Library do
         ["RightAlt"]          = "RightAlt"
     }
 
-    local Themes = {
-        ["Preset"] = {
-            ["Background"] = FromRGB(13, 15, 18),
-            ["Inline"] = FromRGB(22, 25, 30),
-            ["Outline"] = FromRGB(26, 30, 36),
-            ["Text"] = FromRGB(200, 200, 200),
-            ["Dark Text"] = FromRGB(100, 100, 100),
-            ["Element"] = FromRGB(28, 32, 38),
-            ["Accent"] = FromRGB(255, 135, 66)
-        }
+local Themes = {
+    ["Preset"] = {
+        ["Background"] = FromRGB(12, 11, 16),
+        ["Inline"] = FromRGB(20, 18, 26),
+        ["Outline"] = FromRGB(30, 27, 38),
+        ["Text"] = FromRGB(235, 230, 245),
+        ["Dark Text"] = FromRGB(120, 110, 135),
+        ["Element"] = FromRGB(25, 22, 32),
+        ["Accent"] = FromRGB(179, 142, 255)
     }
+}
+
 
     Library.Theme = TableClone(Themes["Preset"])
 
     -- Folders
     local Folders = {
-        Directory = "lds13",
-        Configs = "lds13/Configs",
-        Assets = "lds13/Assets",
+        Directory = "stellarz.fun",
+        Configs = "stellarz.fun/Configs",
+        Assets = "stellarz.fun/Assets",
     }
     
     for Index, Value in Folders do 
@@ -1972,7 +1971,7 @@ local Library do
                     AnchorPoint = Vector2New(0.5, 0.5),
                     Position = UDim2New(0.5, 0, 0.5, 0),
                     BorderColor3 = FromRGB(0, 0, 0),
-                    Size = UDim2New(0, 622, 0, 502),
+                    Size = UDim2New(0, 590, 0, 450),
                     BorderSizePixel = 0,
                     BackgroundColor3 = FromRGB(13, 15, 18)
                 })  Items["MainFrame"]:AddToTheme({BackgroundColor3 = "Background"})
@@ -2918,7 +2917,7 @@ local Library do
                     BorderSizePixel = 0,
                     AnchorPoint = Vector2New(0.5, 0.5),
                     Position = UDim2New(0.5, 0, 0.5, 0),
-                    BackgroundColor3 = FromRGB(255, 135, 66)
+                    BackgroundColor3 = FromRGB(184, 212, 255)
                 })  Items["Accent"]:AddToTheme({BackgroundColor3 = "Accent"})
                 
                 Instances:Create("UICorner", {
@@ -3081,7 +3080,7 @@ local Library do
                     Size = UDim2New(0, 25, 0, 25),
                     BorderSizePixel = 0,
                     TextSize = 14,
-                    BackgroundColor3 = FromRGB(255, 135, 66)
+                    BackgroundColor3 = FromRGB(184, 212, 255)
                 })
                 
                 Instances:Create("UICorner", {
@@ -3207,7 +3206,7 @@ local Library do
                     BorderColor3 = FromRGB(0, 0, 0),
                     Size = UDim2New(0, 0, 0, 0),
                     BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(255, 135, 66)
+                    BackgroundColor3 = FromRGB(184, 212, 255)
                 })  Items["Accent"]:AddToTheme({BackgroundColor3 = "Accent"})
                 
                 Instances:Create("UICorner", {
@@ -3459,7 +3458,7 @@ local Library do
                     BorderColor3 = FromRGB(0, 0, 0),
                     Size = UDim2New(0, 0, 0, 0),
                     BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(255, 135, 66)
+                    BackgroundColor3 = FromRGB(184, 212, 255)
                 })  Items["Accent"]:AddToTheme({BackgroundColor3 = "Accent"})
                 
                 Instances:Create("UICorner", {
@@ -3595,7 +3594,7 @@ local Library do
                     BorderColor3 = FromRGB(0, 0, 0),
                     Size = UDim2New(0.6000000238418579, 0, 1, 0),
                     BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(255, 135, 66)
+                    BackgroundColor3 = FromRGB(184, 212, 255)
                 })  Items["Accent"]:AddToTheme({BackgroundColor3 = "Accent"})
                 
                 Instances:Create("UICorner", {
@@ -4089,7 +4088,7 @@ local Library do
                     Size = UDim2New(1, 0, 0, 20),
                     BorderSizePixel = 0,
                     TextSize = 14,
-                    BackgroundColor3 = FromRGB(255, 135, 66)
+                    BackgroundColor3 = FromRGB(184, 212, 255)
                 })  OptionButton:AddToTheme({BackgroundColor3 = "Accent"})
                 
                 Instances:Create("UIGradient", {
