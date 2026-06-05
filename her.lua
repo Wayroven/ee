@@ -22,8 +22,8 @@ local Colors = {
 	TextActive = Color3.fromRGB(255, 255, 255),
 	TextInactive = Color3.fromRGB(75, 77, 95),
 	TextMuted = Color3.fromRGB(55, 57, 72),
-	AccentStart = Color3.fromRGB(255, 94, 0),
-	AccentEnd = Color3.fromRGB(255, 135, 66),
+	AccentStart = Color3.fromHex("#FF4500"), -- Deeper orange/red
+	AccentEnd = Color3.fromHex("#FF8C00"),   -- Lighter orange to show gradient clearly
 }
 
 local function getGameName()
@@ -150,11 +150,11 @@ function Library:CreateWindow()
 	libName.FontFace = FONT
 	libName.Position = UDim2.new(0, 28, 0.5, 0)
 	libName.RichText = true
-	libName.Size = UDim2.new(0, 300, 1, 0)
+	libName.Size = UDim2.new(0, 250, 1, 0)
 	libName.Text = 'Stellarz.fun <font color="' .. mutedHex .. '">' .. gameName .. '</font>'
 	libName.TextColor3 = Colors.TextActive
 	libName.TextSize = 14
-	libName.TextScaled = true
+	libName.TextTruncate = Enum.TextTruncate.AtEnd
 	libName.TextXAlignment = Enum.TextXAlignment.Left
 	libName.Parent = libIcon
 
@@ -212,7 +212,7 @@ function Library:CreateWindow()
 	sidebarHolder.Parent = sidebar
 
 	local sidebarLayout = Instance.new("UIListLayout")
-	sidebarLayout.Padding = UDim.new(0, 2)
+	sidebarLayout.Padding = UDim.new(0, 4)
 	sidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	sidebarLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	sidebarLayout.Parent = sidebarHolder
@@ -234,7 +234,7 @@ function Library:CreateWindow()
 
 	local subLayout = Instance.new("UIListLayout")
 	subLayout.FillDirection = Enum.FillDirection.Horizontal
-	subLayout.Padding = UDim.new(0, 25)
+	subLayout.Padding = UDim.new(0, 12)
 	subLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	subLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	subLayout.Parent = subHeader
@@ -278,7 +278,7 @@ function Library:CreateWindow()
 		tabFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 		tabFrame.BackgroundTransparency = 1
 		tabFrame.ClipsDescendants = false
-		tabFrame.Size = UDim2.fromOffset(63, 58)
+		tabFrame.Size = UDim2.fromOffset(63, 62)
 		corner(tabFrame, 5)
 
 		local tabIcon = Instance.new("ImageLabel")
@@ -287,7 +287,7 @@ function Library:CreateWindow()
 		tabIcon.BackgroundTransparency = 1
 		tabIcon.Image = tabIconId
 		tabIcon.ImageColor3 = Colors.TextInactive
-		tabIcon.Position = UDim2.new(0.5, 0, 0, 12)
+		tabIcon.Position = UDim2.new(0.5, 0, 0, 10)
 		tabIcon.Size = UDim2.fromOffset(20, 18)
 		tabIcon.Parent = tabFrame
 
@@ -297,11 +297,11 @@ function Library:CreateWindow()
 		tabLabel.AutomaticSize = Enum.AutomaticSize.X
 		tabLabel.BackgroundTransparency = 1
 		tabLabel.FontFace = FONT_BOLD
-		tabLabel.Position = UDim2.new(0.5, 0, 0, 34)
+		tabLabel.Position = UDim2.new(0.5, 0, 0, 32)
 		tabLabel.Size = UDim2.fromOffset(0, 14)
 		tabLabel.Text = tabName
 		tabLabel.TextColor3 = Colors.TextInactive
-		tabLabel.TextSize = 11
+		tabLabel.TextSize = 10
 		tabLabel.TextScaled = false
 		tabLabel.Parent = tabFrame
 
@@ -310,7 +310,7 @@ function Library:CreateWindow()
 		indicatorBg.AnchorPoint = Vector2.new(0.5, 1)
 		indicatorBg.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
 		indicatorBg.BackgroundTransparency = 1
-		indicatorBg.Position = UDim2.new(0.5, 0, 1, -4)
+		indicatorBg.Position = UDim2.new(0.5, 0, 1, -2)
 		indicatorBg.Size = UDim2.fromOffset(30, 4)
 		corner(indicatorBg, 2)
 		indicatorBg.Parent = tabFrame
@@ -318,7 +318,7 @@ function Library:CreateWindow()
 		local indicatorFill = Instance.new("Frame")
 		indicatorFill.Name = "Fill"
 		indicatorFill.AnchorPoint = Vector2.new(0, 0.5)
-		indicatorFill.BackgroundColor3 = Colors.AccentStart
+		indicatorFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 		indicatorFill.Position = UDim2.new(0, 0, 0.5, 0)
 		indicatorFill.Size = UDim2.new(0, 0, 1, 0)
 		corner(indicatorFill, 2)
