@@ -146,17 +146,20 @@ function Library:CreateWindow()
 	local libName = Instance.new("TextLabel")
 	libName.Name = "Libary_Name"
 	libName.AnchorPoint = Vector2.new(0, 0.5)
-	libName.AutomaticSize = Enum.AutomaticSize.X
 	libName.BackgroundTransparency = 1
 	libName.FontFace = FONT
 	libName.Position = UDim2.new(0, 28, 0.5, 0)
 	libName.RichText = true
-	libName.Size = UDim2.new(0, 0, 1, 0)
+	libName.Size = UDim2.new(0, 300, 1, 0)
 	libName.Text = 'Stellarz.fun <font color="' .. mutedHex .. '">' .. gameName .. '</font>'
 	libName.TextColor3 = Colors.TextActive
-	libName.TextSize = 14
+	libName.TextScaled = true
 	libName.TextXAlignment = Enum.TextXAlignment.Left
 	libName.Parent = libIcon
+
+	local libConstraint = Instance.new("UITextSizeConstraint")
+	libConstraint.MaxTextSize = 14
+	libConstraint.Parent = libName
 
 	local dateStr = os.date("%m/%d/%Y")
 	local monthNames = {"January","February","March","April","May","June","July","August","September","October","November","December"}
@@ -448,7 +451,7 @@ function Library:CreateWindow()
 
 				local accentLine = Instance.new("Frame")
 				accentLine.AnchorPoint = Vector2.new(0, 0.5)
-				accentLine.BackgroundColor3 = Colors.AccentStart
+				accentLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 				accentLine.Position = UDim2.new(0, -3, 0.5, 0)
 				accentLine.Size = UDim2.fromOffset(6, 20)
 				corner(accentLine, 30)
@@ -506,16 +509,26 @@ function Library:CreateWindow()
 					tglBtn.ZIndex = 5
 					tglBtn.Parent = tgl
 
+					local tglGrad = Instance.new("UIGradient")
+					tglGrad.Color = ColorSequence.new({
+						ColorSequenceKeypoint.new(0, Colors.AccentStart),
+						ColorSequenceKeypoint.new(1, Colors.AccentEnd),
+					})
+					tglGrad.Enabled = false
+					tglGrad.Parent = tgl
+
 					tglBtn.MouseButton1Click:Connect(function()
 						Section._toggled = not Section._toggled
 						if Section._toggled then
-							tween(tgl, 0.2, {BackgroundColor3 = Colors.AccentStart})
+							tween(tgl, 0.2, {BackgroundColor3 = Color3.fromRGB(255, 255, 255)})
 							tween(chk, 0.2, {ImageTransparency = 0})
 							tglStroke.Color = Colors.AccentEnd
+							tglGrad.Enabled = true
 						else
 							tween(tgl, 0.2, {BackgroundColor3 = Colors.ElementBg})
 							tween(chk, 0.2, {ImageTransparency = 1})
 							tglStroke.Color = Colors.Stroke
+							tglGrad.Enabled = false
 						end
 					end)
 
@@ -639,7 +652,7 @@ function Library:CreateWindow()
 
 			local subIndFill = Instance.new("Frame")
 			subIndFill.AnchorPoint = Vector2.new(0, 0.5)
-			subIndFill.BackgroundColor3 = Colors.AccentStart
+			subIndFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 			subIndFill.Position = UDim2.new(0, 0, 0.5, 0)
 			subIndFill.Size = UDim2.new(0, 0, 1, 0)
 			corner(subIndFill, 2)
