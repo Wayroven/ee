@@ -471,6 +471,7 @@ function Library:CreateWindow()
 					ic.Position = UDim2.new(0, 12, 0.5, 0)
 					ic.Size = UDim2.fromOffset(15, 15)
 					ic.Parent = headerF
+					Section._icon = ic
 				end
 
 				local sLabel = Instance.new("TextLabel")
@@ -484,6 +485,7 @@ function Library:CreateWindow()
 				sLabel.TextColor3 = Colors.TextActive
 				sLabel.TextSize = 12
 				sLabel.Parent = headerF
+				Section._label = sLabel
 
 				if hasToggle then
 					local tgl = Instance.new("Frame")
@@ -524,7 +526,7 @@ function Library:CreateWindow()
 
 					local overlay = Instance.new("Frame")
 					overlay.Name = "DisabledOverlay"
-					overlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+					overlay.BackgroundColor3 = Colors.Background
 					overlay.BackgroundTransparency = 1
 					overlay.BorderSizePixel = 0
 					overlay.Position = UDim2.new(0, 0, 0, 30)
@@ -542,22 +544,26 @@ function Library:CreateWindow()
 							tween(chk, 0.2, {ImageTransparency = 0})
 							tglStroke.Color = Colors.AccentEnd
 							tglGrad.Enabled = true
-							tween(Section._overlay, 0.2, {BackgroundTransparency = 1})
-							task.delay(0.2, function() Section._overlay.Visible = false end)
+							Section._overlay.Visible = false
+							tween(Section._holder, 0.2, {GroupTransparency = 0})
+							tween(Section._label, 0.2, {TextColor3 = Colors.TextActive})
+							if Section._icon then tween(Section._icon, 0.2, {ImageColor3 = Color3.fromRGB(255, 255, 255)}) end
 						else
 							tween(tgl, 0.2, {BackgroundColor3 = Colors.ElementBg})
 							tween(chk, 0.2, {ImageTransparency = 1})
 							tglStroke.Color = Colors.Stroke
 							tglGrad.Enabled = false
 							Section._overlay.Visible = true
-							tween(Section._overlay, 0.2, {BackgroundTransparency = 0.3})
+							tween(Section._holder, 0.2, {GroupTransparency = 0.6})
+							tween(Section._label, 0.2, {TextColor3 = Colors.TextMuted})
+							if Section._icon then tween(Section._icon, 0.2, {ImageColor3 = Colors.TextMuted}) end
 						end
 					end)
 
 					Section._toggle = tgl
 				end
 
-				local holder = Instance.new("Frame")
+				local holder = Instance.new("CanvasGroup")
 				holder.Name = "Holder"
 				holder.AnchorPoint = Vector2.new(0.5, 0)
 				holder.AutomaticSize = Enum.AutomaticSize.Y
@@ -588,16 +594,15 @@ function Library:CreateWindow()
 
 					local tFrame = Instance.new("Frame")
 					tFrame.Name = "Element_Toggle"
-					tFrame.BackgroundColor3 = Colors.ElementBg
-					tFrame.Size = UDim2.new(1, 0, 0, 36)
-					corner(tFrame, 4)
+					tFrame.BackgroundTransparency = 1
+					tFrame.Size = UDim2.new(1, 0, 0, 24)
 					tFrame.Parent = Section._holder
 
 					local tLabel = Instance.new("TextLabel")
 					tLabel.AnchorPoint = Vector2.new(0, 0.5)
 					tLabel.BackgroundTransparency = 1
 					tLabel.FontFace = FONT_REGULAR
-					tLabel.Position = UDim2.new(0, 12, 0.5, 0)
+					tLabel.Position = UDim2.new(0, 10, 0.5, 0)
 					tLabel.Size = UDim2.new(1, -50, 1, 0)
 					tLabel.Text = tName
 					tLabel.TextColor3 = Colors.TextInactive
@@ -608,7 +613,7 @@ function Library:CreateWindow()
 					local tgl = Instance.new("Frame")
 					tgl.AnchorPoint = Vector2.new(1, 0.5)
 					tgl.BackgroundColor3 = Colors.ElementBg
-					tgl.Position = UDim2.new(1, -12, 0.5, 0)
+					tgl.Position = UDim2.new(1, -10, 0.5, 0)
 					tgl.Size = UDim2.fromOffset(16, 16)
 					corner(tgl, 3)
 					tgl.Parent = tFrame
