@@ -237,13 +237,13 @@ function Library:CreateWindow()
 
 	local subLayout = Instance.new("UIListLayout")
 	subLayout.FillDirection = Enum.FillDirection.Horizontal
-	subLayout.Padding = UDim.new(0, 20)
+	subLayout.Padding = UDim.new(0, 30)
 	subLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	subLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	subLayout.Parent = subHeader
 
 	local subPad = Instance.new("UIPadding")
-	subPad.PaddingLeft = UDim.new(0, 18)
+	subPad.PaddingLeft = UDim.new(0, 24)
 	subPad.Parent = subHeader
 
 	Window._subHeader = subHeader
