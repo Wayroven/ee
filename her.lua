@@ -85,20 +85,25 @@ function Library:CreateWindow()
 	Window._tabs = {}
 	Window._activeTab = nil
 
-	local screenGui = Instance.new("ScreenGui")
-	screenGui.Name = "ScreenGui"
-	screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	screenGui.ResetOnSpawn = false
+	local screenName = "StellarzUILib_v1"
 
 	local ok, hui = pcall(gethui)
-	if ok and hui then
-		screenGui.Parent = hui
-	else
-		pcall(function() screenGui.Parent = game:GetService("CoreGui") end)
-		if not screenGui.Parent then
-			screenGui.Parent = Player:WaitForChild("PlayerGui")
+	local targetParent = (ok and hui) and hui or nil
+	if not targetParent then
+		pcall(function() targetParent = game:GetService("CoreGui") end)
+		if not targetParent then
+			targetParent = Player:WaitForChild("PlayerGui")
 		end
 	end
+
+	local old = targetParent:FindFirstChild(screenName)
+	if old then old:Destroy() end
+
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = screenName
+	screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	screenGui.ResetOnSpawn = false
+	screenGui.Parent = targetParent
 
 	Window._screenGui = screenGui
 
@@ -418,7 +423,7 @@ function Library:CreateWindow()
 
 				local Section = {}
 				Section._name = secName
-				Section._toggled = false
+				Section._toggled = true
 
 				local parent = (side == "Right") and SubTab._rightColumn or SubTab._leftColumn
 
@@ -483,14 +488,14 @@ function Library:CreateWindow()
 				if hasToggle then
 					local tgl = Instance.new("Frame")
 					tgl.AnchorPoint = Vector2.new(1, 0.5)
-					tgl.BackgroundColor3 = Colors.ElementBg
+					tgl.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 					tgl.Position = UDim2.new(1, -12, 0.5, 0)
 					tgl.Size = UDim2.fromOffset(16, 16)
 					corner(tgl, 3)
 					tgl.Parent = headerF
 
 					local tglStroke = Instance.new("UIStroke")
-					tglStroke.Color = Colors.Stroke
+					tglStroke.Color = Colors.AccentEnd
 					tglStroke.Parent = tgl
 
 					local chk = Instance.new("ImageLabel")
@@ -499,7 +504,7 @@ function Library:CreateWindow()
 					chk.Image = "rbxassetid://83899464799881"
 					chk.Position = UDim2.fromScale(0.5, 0.5)
 					chk.Size = UDim2.fromOffset(8, 7)
-					chk.ImageTransparency = 1
+					chk.ImageTransparency = 0
 					chk.Parent = tgl
 
 					local tglBtn = Instance.new("TextButton")
@@ -514,8 +519,21 @@ function Library:CreateWindow()
 						ColorSequenceKeypoint.new(0, Colors.AccentStart),
 						ColorSequenceKeypoint.new(1, Colors.AccentEnd),
 					})
-					tglGrad.Enabled = false
+					tglGrad.Enabled = true
 					tglGrad.Parent = tgl
+
+					local overlay = Instance.new("Frame")
+					overlay.Name = "DisabledOverlay"
+					overlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+					overlay.BackgroundTransparency = 1
+					overlay.BorderSizePixel = 0
+					overlay.Position = UDim2.new(0, 0, 0, 30)
+					overlay.Size = UDim2.new(1, 0, 1, -30)
+					overlay.ZIndex = 10
+					overlay.Visible = false
+					overlay.Active = true
+					overlay.Parent = sectionFrame
+					Section._overlay = overlay
 
 					tglBtn.MouseButton1Click:Connect(function()
 						Section._toggled = not Section._toggled
@@ -524,11 +542,15 @@ function Library:CreateWindow()
 							tween(chk, 0.2, {ImageTransparency = 0})
 							tglStroke.Color = Colors.AccentEnd
 							tglGrad.Enabled = true
+							tween(Section._overlay, 0.2, {BackgroundTransparency = 1})
+							task.delay(0.2, function() Section._overlay.Visible = false end)
 						else
 							tween(tgl, 0.2, {BackgroundColor3 = Colors.ElementBg})
 							tween(chk, 0.2, {ImageTransparency = 1})
 							tglStroke.Color = Colors.Stroke
 							tglGrad.Enabled = false
+							Section._overlay.Visible = true
+							tween(Section._overlay, 0.2, {BackgroundTransparency = 0.3})
 						end
 					end)
 
@@ -556,6 +578,98 @@ function Library:CreateWindow()
 
 				Section._holder = holder
 				table.insert(SubTab._sections, Section)
+
+				function Section:CreateToggle(config)
+					local tName = config.Name or "Toggle"
+					local callback = config.Callback or function() end
+					local default = config.Default or false
+
+					local Toggle = { Value = default }
+
+					local tFrame = Instance.new("Frame")
+					tFrame.Name = "Element_Toggle"
+					tFrame.BackgroundColor3 = Colors.ElementBg
+					tFrame.Size = UDim2.new(1, 0, 0, 36)
+					corner(tFrame, 4)
+					tFrame.Parent = Section._holder
+
+					local tLabel = Instance.new("TextLabel")
+					tLabel.AnchorPoint = Vector2.new(0, 0.5)
+					tLabel.BackgroundTransparency = 1
+					tLabel.FontFace = FONT_REGULAR
+					tLabel.Position = UDim2.new(0, 12, 0.5, 0)
+					tLabel.Size = UDim2.new(1, -50, 1, 0)
+					tLabel.Text = tName
+					tLabel.TextColor3 = Colors.TextInactive
+					tLabel.TextSize = 12
+					tLabel.TextXAlignment = Enum.TextXAlignment.Left
+					tLabel.Parent = tFrame
+
+					local tgl = Instance.new("Frame")
+					tgl.AnchorPoint = Vector2.new(1, 0.5)
+					tgl.BackgroundColor3 = Colors.ElementBg
+					tgl.Position = UDim2.new(1, -12, 0.5, 0)
+					tgl.Size = UDim2.fromOffset(16, 16)
+					corner(tgl, 3)
+					tgl.Parent = tFrame
+
+					local tglStroke = Instance.new("UIStroke")
+					tglStroke.Color = Colors.Stroke
+					tglStroke.Parent = tgl
+
+					local chk = Instance.new("ImageLabel")
+					chk.AnchorPoint = Vector2.new(0.5, 0.5)
+					chk.BackgroundTransparency = 1
+					chk.Image = "rbxassetid://83899464799881"
+					chk.Position = UDim2.fromScale(0.5, 0.5)
+					chk.Size = UDim2.fromOffset(8, 7)
+					chk.ImageTransparency = 1
+					chk.Parent = tgl
+
+					local tglGrad = Instance.new("UIGradient")
+					tglGrad.Color = ColorSequence.new({
+						ColorSequenceKeypoint.new(0, Colors.AccentStart),
+						ColorSequenceKeypoint.new(1, Colors.AccentEnd),
+					})
+					tglGrad.Enabled = false
+					tglGrad.Parent = tgl
+
+					local tBtn = Instance.new("TextButton")
+					tBtn.BackgroundTransparency = 1
+					tBtn.Size = UDim2.fromScale(1, 1)
+					tBtn.Text = ""
+					tBtn.ZIndex = 5
+					tBtn.Parent = tFrame
+
+					local function setState(state)
+						Toggle.Value = state
+						if state then
+							tween(tgl, 0.2, {BackgroundColor3 = Color3.fromRGB(255, 255, 255)})
+							tween(chk, 0.2, {ImageTransparency = 0})
+							tween(tLabel, 0.2, {TextColor3 = Colors.TextActive})
+							tglStroke.Color = Colors.AccentEnd
+							tglGrad.Enabled = true
+						else
+							tween(tgl, 0.2, {BackgroundColor3 = Colors.ElementBg})
+							tween(chk, 0.2, {ImageTransparency = 1})
+							tween(tLabel, 0.2, {TextColor3 = Colors.TextInactive})
+							tglStroke.Color = Colors.Stroke
+							tglGrad.Enabled = false
+						end
+						callback(state)
+					end
+
+					tBtn.MouseButton1Click:Connect(function()
+						setState(not Toggle.Value)
+					end)
+
+					if default then
+						setState(true)
+					end
+
+					return Toggle
+				end
+
 				return Section
 			end
 
@@ -618,11 +732,11 @@ function Library:CreateWindow()
 			subFrame.LayoutOrder = i
 
 			local label = Instance.new("TextLabel")
-			label.AnchorPoint = Vector2.new(0.5, 0.5)
+			label.AnchorPoint = Vector2.new(0, 0.5)
 			label.AutomaticSize = Enum.AutomaticSize.XY
 			label.BackgroundTransparency = 1
 			label.FontFace = FONT_REGULAR
-			label.Position = UDim2.new(0.5, 0, 0.5, -3)
+			label.Position = UDim2.new(0, 0, 0.5, -3)
 			label.Size = UDim2.fromOffset(1, 1)
 			label.Text = subTab._name
 			label.TextColor3 = Colors.TextInactive
