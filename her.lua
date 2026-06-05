@@ -146,15 +146,16 @@ function Library:CreateWindow()
 	local libName = Instance.new("TextLabel")
 	libName.Name = "Libary_Name"
 	libName.AnchorPoint = Vector2.new(0, 0.5)
-	libName.AutomaticSize = Enum.AutomaticSize.XY
 	libName.BackgroundTransparency = 1
 	libName.FontFace = FONT
 	libName.Position = UDim2.new(0, 28, 0.5, 0)
 	libName.RichText = true
-	libName.Size = UDim2.fromOffset(1, 1)
+	libName.Size = UDim2.new(0, 300, 1, 0)
 	libName.Text = 'Stellarz.fun <font color="' .. mutedHex .. '">' .. gameName .. '</font>'
 	libName.TextColor3 = Colors.TextActive
 	libName.TextSize = 14
+	libName.TextScaled = true
+	libName.TextXAlignment = Enum.TextXAlignment.Left
 	libName.Parent = libIcon
 
 	local dateStr = os.date("%m/%d/%Y")
