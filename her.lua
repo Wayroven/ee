@@ -146,15 +146,15 @@ function Library:CreateWindow()
 	local libName = Instance.new("TextLabel")
 	libName.Name = "Libary_Name"
 	libName.AnchorPoint = Vector2.new(0, 0.5)
+	libName.AutomaticSize = Enum.AutomaticSize.X
 	libName.BackgroundTransparency = 1
 	libName.FontFace = FONT
 	libName.Position = UDim2.new(0, 28, 0.5, 0)
 	libName.RichText = true
-	libName.Size = UDim2.new(0, 250, 1, 0)
+	libName.Size = UDim2.new(0, 0, 1, 0)
 	libName.Text = 'Stellarz.fun <font color="' .. mutedHex .. '">' .. gameName .. '</font>'
 	libName.TextColor3 = Colors.TextActive
 	libName.TextSize = 14
-	libName.TextTruncate = Enum.TextTruncate.AtEnd
 	libName.TextXAlignment = Enum.TextXAlignment.Left
 	libName.Parent = libIcon
 
@@ -234,7 +234,7 @@ function Library:CreateWindow()
 
 	local subLayout = Instance.new("UIListLayout")
 	subLayout.FillDirection = Enum.FillDirection.Horizontal
-	subLayout.Padding = UDim.new(0, 12)
+	subLayout.Padding = UDim.new(0, 20)
 	subLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	subLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	subLayout.Parent = subHeader
@@ -301,7 +301,7 @@ function Library:CreateWindow()
 		tabLabel.Size = UDim2.fromOffset(0, 14)
 		tabLabel.Text = tabName
 		tabLabel.TextColor3 = Colors.TextInactive
-		tabLabel.TextSize = 10
+		tabLabel.TextSize = 9
 		tabLabel.TextScaled = false
 		tabLabel.Parent = tabFrame
 
