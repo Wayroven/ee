@@ -22,19 +22,11 @@ local Colors = {
 	TextActive = Color3.fromRGB(255, 255, 255),
 	TextInactive = Color3.fromRGB(75, 77, 95),
 	TextMuted = Color3.fromRGB(55, 57, 72),
-	AccentStart = Color3.fromRGB(200, 60, 30),
-	AccentEnd = Color3.fromRGB(230, 120, 20),
-}
-
-local GameNames = {
-	[2753915549] = "Bloxfruits",
-	[4442272183] = "Bloxfruits",
-	[7449423635] = "Bloxfruits",
+	AccentStart = Color3.fromRGB(255, 94, 0),
+	AccentEnd = Color3.fromRGB(255, 135, 66),
 }
 
 local function getGameName()
-	local name = GameNames[game.PlaceId]
-	if name then return name end
 	local ok, info = pcall(function()
 		return MarketplaceService:GetProductInfo(game.PlaceId)
 	end)
@@ -241,7 +233,7 @@ function Library:CreateWindow()
 
 	local subLayout = Instance.new("UIListLayout")
 	subLayout.FillDirection = Enum.FillDirection.Horizontal
-	subLayout.Padding = UDim.new(0, 6)
+	subLayout.Padding = UDim.new(0, 25)
 	subLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	subLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	subLayout.Parent = subHeader
@@ -284,7 +276,7 @@ function Library:CreateWindow()
 		tabFrame.Name = "Tab_" .. tabName
 		tabFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 		tabFrame.BackgroundTransparency = 1
-		tabFrame.ClipsDescendants = true
+		tabFrame.ClipsDescendants = false
 		tabFrame.Size = UDim2.fromOffset(63, 58)
 		corner(tabFrame, 5)
 
@@ -294,22 +286,22 @@ function Library:CreateWindow()
 		tabIcon.BackgroundTransparency = 1
 		tabIcon.Image = tabIconId
 		tabIcon.ImageColor3 = Colors.TextInactive
-		tabIcon.Position = UDim2.new(0.5, 0, 0, 10)
+		tabIcon.Position = UDim2.new(0.5, 0, 0, 12)
 		tabIcon.Size = UDim2.fromOffset(20, 18)
 		tabIcon.Parent = tabFrame
 
 		local tabLabel = Instance.new("TextLabel")
 		tabLabel.Name = "Label"
 		tabLabel.AnchorPoint = Vector2.new(0.5, 0)
+		tabLabel.AutomaticSize = Enum.AutomaticSize.X
 		tabLabel.BackgroundTransparency = 1
 		tabLabel.FontFace = FONT_BOLD
-		tabLabel.Position = UDim2.new(0.5, 0, 0, 30)
-		tabLabel.Size = UDim2.fromOffset(60, 14)
+		tabLabel.Position = UDim2.new(0.5, 0, 0, 34)
+		tabLabel.Size = UDim2.fromOffset(0, 14)
 		tabLabel.Text = tabName
 		tabLabel.TextColor3 = Colors.TextInactive
-		tabLabel.TextSize = 10
+		tabLabel.TextSize = 11
 		tabLabel.TextScaled = false
-		tabLabel.TextTruncate = Enum.TextTruncate.AtEnd
 		tabLabel.Parent = tabFrame
 
 		local indicatorBg = Instance.new("Frame")
