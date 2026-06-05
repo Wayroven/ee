@@ -424,6 +424,7 @@ function Library:CreateWindow()
 				local Section = {}
 				Section._name = secName
 				Section._toggled = true
+				Section._elements = {}
 
 				local parent = (side == "Right") and SubTab._rightColumn or SubTab._leftColumn
 
@@ -462,6 +463,7 @@ function Library:CreateWindow()
 				corner(accentLine, 30)
 				accentGradient(accentLine)
 				accentLine.Parent = headerF
+				Section._accentLine = accentLine
 
 				if secIcon ~= "" then
 					local ic = Instance.new("ImageLabel")
@@ -547,6 +549,7 @@ function Library:CreateWindow()
 							Section._overlay.Visible = false
 							tween(Section._holder, 0.2, {GroupTransparency = 0})
 							tween(Section._label, 0.2, {TextColor3 = Colors.TextActive})
+							tween(Section._accentLine, 0.2, {BackgroundTransparency = 0})
 							if Section._icon then tween(Section._icon, 0.2, {ImageColor3 = Color3.fromRGB(255, 255, 255)}) end
 						else
 							tween(tgl, 0.2, {BackgroundColor3 = Colors.ElementBg})
@@ -556,7 +559,14 @@ function Library:CreateWindow()
 							Section._overlay.Visible = true
 							tween(Section._holder, 0.2, {GroupTransparency = 0.6})
 							tween(Section._label, 0.2, {TextColor3 = Colors.TextMuted})
+							tween(Section._accentLine, 0.2, {BackgroundTransparency = 0.6})
 							if Section._icon then tween(Section._icon, 0.2, {ImageColor3 = Colors.TextMuted}) end
+							
+							for _, elem in Section._elements do
+								if elem.Type == "Toggle" and elem.Value == true then
+									elem.Set(false)
+								end
+							end
 						end
 					end)
 
@@ -647,6 +657,7 @@ function Library:CreateWindow()
 					tBtn.Parent = tFrame
 
 					local function setState(state)
+						if state == Toggle.Value then return end
 						Toggle.Value = state
 						if state then
 							tween(tgl, 0.2, {BackgroundColor3 = Color3.fromRGB(255, 255, 255)})
@@ -664,7 +675,12 @@ function Library:CreateWindow()
 						callback(state)
 					end
 
+					Toggle.Set = setState
+					Toggle.Type = "Toggle"
+					table.insert(Section._elements, Toggle)
+
 					tBtn.MouseButton1Click:Connect(function()
+						if not Section._toggled then return end
 						setState(not Toggle.Value)
 					end)
 
@@ -834,6 +850,35 @@ function Library:CreateWindow()
 		end
 
 		tab._activeSubTab = subTab
+	end
+
+	function Window:BuildSettingsTab()
+		if Window._settingsTabBuilt then return end
+		Window._settingsTabBuilt = true
+
+		if isfolder and makefolder then
+			if not isfolder("Stellarz.fun") then
+				makefolder("Stellarz.fun")
+			end
+		end
+
+		local SettingsTab = Window:CreateTab({
+			Name = "Settings",
+			Icon = "rbxassetid://128822529527725"
+		})
+
+		local ConfigSub = SettingsTab:CreateSubTab({ Name = "Configuration" })
+
+		local ConfigSection = ConfigSub:CreateSection({
+			Name = "Configs",
+			Side = "Left",
+			Icon = "rbxassetid://128822529527725",
+			Toggle = false
+		})
+
+		-- Dropdowns and save buttons will go here later
+		
+		return SettingsTab
 	end
 
 	return Window
