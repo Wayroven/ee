@@ -1359,6 +1359,86 @@ do -- Library
         return FromHSV(Hue, Saturation, MathClamp(Value * Increment, 0, 1))
     end)
 
+    Library.IsTyping = LPH_NO_VIRTUALIZE(function(self)
+        local Focused = UserInputService:GetFocusedTextBox()
+        return Focused ~= nil
+    end)
+
+    Library.GetActiveSearchItems = LPH_NO_VIRTUALIZE(function(self)
+        local Page = self.CurrentPage
+
+        if not Page then
+            return nil
+        end
+
+        if Page.SubPagesStack then
+            for _, Sub in Page.SubPagesStack do
+                if Sub.Active then
+                    return self.SearchItems[Sub]
+                end
+            end
+        end
+
+        return self.SearchItems[Page]
+    end)
+
+    Library.ResetSearchFilter = LPH_NO_VIRTUALIZE(function(self, Window, PageSearchData)
+        if not PageSearchData then
+            return
+        end
+
+        for _, Value in PageSearchData do
+            local Element = Value.Item
+
+            Element.Instance.Visible = true
+
+            local OldSize = Window:GetOldSize(Element)
+
+            if OldSize then
+                Element:Tween(nil, {Size = OldSize})
+            end
+        end
+    end)
+
+    Library.ApplySearchFilter = LPH_NO_VIRTUALIZE(function(self, Window, Query)
+        local PageSearchData = self:GetActiveSearchItems()
+
+        if not PageSearchData then
+            return
+        end
+
+        Query = StringLower(Query or "")
+
+        for _, Value in PageSearchData do
+            local Name = Value.Name
+            local Element = Value.Item
+
+            if Query == "" or StringFind(StringLower(Name), Query) then
+                Element.Instance.Visible = true
+
+                local OldSize = Window:GetOldSize(Element)
+
+                if OldSize then
+                    Element:Tween(nil, {Size = OldSize})
+                end
+            else
+                Window:AddToOldSizes(Element, Element.Instance.Size)
+                Element:Tween(nil, {Size = UDim2New(Window:GetOldSize(Element).X.Scale, Window:GetOldSize(Element).X.Offset, 0, 0)})
+                Element.Instance.Visible = false
+            end
+        end
+    end)
+
+    Library.ClearWindowSearch = LPH_NO_VIRTUALIZE(function(self, Window)
+        if Window and Window.Items and Window.Items["Input"] then
+            Window.Items["Input"].Instance.Text = ""
+        end
+
+        for _, PageSearchData in self.SearchItems do
+            self:ResetSearchFilter(Window, PageSearchData)
+        end
+    end)
+
     local Components = { } do
         Components.Toggle = function(Data)
             local Toggle = { 
@@ -1489,7 +1569,7 @@ do -- Library
                     BorderColor3 = FromRGB(0, 0, 0),
                     AnchorPoint = Vector2New(1, 0),
                     BackgroundTransparency = 1,
-                    Position = UDim2New(1, -24, 0, 0),
+                    Position = UDim2New(1, -28, 0, 0),
                     Size = UDim2New(0, 0, 1, 0),
                     BorderSizePixel = 0,
                     AutomaticSize = Enum.AutomaticSize.X,
@@ -1502,7 +1582,7 @@ do -- Library
                     VerticalAlignment = Enum.VerticalAlignment.Center,
                     FillDirection = Enum.FillDirection.Horizontal,
                     HorizontalAlignment = Enum.HorizontalAlignment.Right,
-                    Padding = UDimNew(0, 6),
+                    Padding = UDimNew(0, 8),
                     SortOrder = Enum.SortOrder.LayoutOrder
                 })
             end
@@ -2254,9 +2334,9 @@ do -- Library
                     BorderColor3 = FromRGB(0, 0, 0),
                     Text = "",
                     AutoButtonColor = false,
-                    AnchorPoint = Vector2New(1, 0.5),
+                    AnchorPoint = Data.IsToggle and Vector2New(0, 0.5) or Vector2New(1, 0.5),
                     BorderSizePixel = 0,
-                    Position = UDim2New(1, -25, 0, 0),
+                    Position = Data.IsToggle and UDim2New(0, 0, 0.5, 0) or UDim2New(1, -25, 0, 0),
                     Size = UDim2New(0, 20, 0, 20),
                     ZIndex = 2,
                     TextSize = 14,
@@ -2264,6 +2344,10 @@ do -- Library
                 })
 
                 local CalculateCount = function(Index)
+                    if Data.IsToggle then
+                        return
+                    end
+
                     local MaxButtonsAdded = 5
 
                     local Column = Index % MaxButtonsAdded
@@ -2273,7 +2357,7 @@ do -- Library
                 
                     local XPosition = (ButtonSize.X + Spacing) * Column - Spacing - ButtonSize.X
                 
-                    Items["ColorpickerButton"].Instance.Position = UDim2New(1, Data.IsToggle and XPosition - 24 or -XPosition, 0.5, 0)
+                    Items["ColorpickerButton"].Instance.Position = UDim2New(1, -XPosition, 0.5, 0)
                 end
 
                 CalculateCount(Data.Count)
@@ -3352,12 +3436,12 @@ do -- Library
                     TextColor3 = FromRGB(255, 255, 255),
                     TextTransparency = 0.5,
                     Text = "None",
-                    AutomaticSize = Enum.AutomaticSize.X,
+                    AutomaticSize = Data.IsToggle and Enum.AutomaticSize.None or Enum.AutomaticSize.X,
                     AutoButtonColor = false,
-                    AnchorPoint = Vector2New(1, 0.5),
-                    Size = UDim2New(0, 0, 0, 15),
+                    AnchorPoint = Data.IsToggle and Vector2New(0, 0.5) or Vector2New(1, 0.5),
+                    Size = Data.IsToggle and UDim2New(0, 20, 0, 20) or UDim2New(0, 0, 0, 15),
                     BackgroundTransparency = 1,
-                    Position = UDim2New(1, Data.IsToggle and -25 or 0, 0.5, 0),
+                    Position = Data.IsToggle and UDim2New(0, 0, 0.5, 0) or UDim2New(1, 0, 0.5, 0),
                     BorderColor3 = FromRGB(0, 0, 0),
                     ZIndex = 2,
                     TextSize = 14,
@@ -3367,8 +3451,8 @@ do -- Library
                 Instances:Create("UIPadding", {
                     Parent = Items["KeyButton"].Instance,
                     Name = "\0",
-                    PaddingRight = UDimNew(0, 2),
-                    PaddingLeft = UDimNew(0, 2)
+                    PaddingRight = UDimNew(0, Data.IsToggle and 4 or 2),
+                    PaddingLeft = UDimNew(0, Data.IsToggle and 4 or 2)
                 })
 
                 Items["KeybindWindow"] = Instances:Create("Frame", {
@@ -3973,13 +4057,15 @@ do -- Library
                 Toggle:Set(true)
 
                 Dropdown.Callback = function(Value)
-                    Keybind.Mode = Value
+                    Keybind.Mode = StringLower(tostring(Value))
 
                     Library.Flags[Data.Flag] = {
                         Mode = Keybind.Mode,
                         Key = Keybind.Key,
                         Toggled = Keybind.Toggled
                     }
+
+                    Update()
                 end 
 
                 getgenv().Options[Toggle.Flag] = Toggle
@@ -3992,7 +4078,7 @@ do -- Library
 
                 KeylistItem:SetText(Keybind.Value, Data.Name)
                 
-                if Keybind.Mode == "hold" then 
+                if StringLower(tostring(Keybind.Mode or "toggle")) == "hold" then 
                     KeylistItem:SetStatus(Keybind.Toggled and "holding" or "off")
                 else
                     KeylistItem:SetStatus(Keybind.Toggled and "on" or "off")
@@ -4066,7 +4152,11 @@ do -- Library
             end
 
             function Keybind:SetMode(Mode)
-                ModesDropdown:Set(Mode)
+                Keybind.Mode = StringLower(tostring(Mode))
+
+                if Modes[Keybind.Mode] then
+                    ModesDropdown:Set(Keybind.Mode)
+                end
                 
                 Library.Flags[Data.Flag] = {
                     Mode = Keybind.Mode,
@@ -4109,10 +4199,8 @@ do -- Library
                     Keybind.Key = tostring(Key.Key)
 
                     if Key.Mode then
-                        Keybind.Mode = Key.Mode
                         Keybind:SetMode(Key.Mode)
                     else
-                        Keybind.Mode = "toggle"
                         Keybind:SetMode("toggle")
                     end
 
@@ -4129,9 +4217,8 @@ do -- Library
                     end
 
                     Update()
-                elseif TableFind({"toggle", "hold", "always"}, Key) then
-                    Keybind.Mode = Key
-                    Keybind:SetMode(Keybind.Mode)
+                elseif TableFind({"toggle", "hold", "always"}, StringLower(tostring(Key))) then
+                    Keybind:SetMode(Key)
 
                     if Data.Callback then 
                         Library:SafeCall(Data.Callback, Keybind.Toggled)
@@ -4145,11 +4232,17 @@ do -- Library
             end
 
             function Keybind:Press(Bool)
-                if Keybind.Mode == "toggle" then 
+                if Keybind.Picking or Keybind.IsOpen then
+                    return
+                end
+
+                local Mode = StringLower(tostring(Keybind.Mode or "toggle"))
+
+                if Mode == "toggle" then 
                     Keybind.Toggled = not Keybind.Toggled
-                elseif Keybind.Mode == "hold" then 
+                elseif Mode == "hold" then 
                     Keybind.Toggled = Bool
-                elseif Keybind.Mode == "always" then 
+                elseif Mode == "always" then 
                     Keybind.Toggled = true
                 end
 
@@ -4190,13 +4283,21 @@ do -- Library
                 end)
             end)
 
-            Library:Connect(UserInputService.InputBegan, function(Input, Typing)
-                if Typing then return end
-                if tostring(Input.KeyCode) == Keybind.Key or tostring(Input.UserInputType) == Keybind.Key and not Keybind.Value == "None" then
-                    if Keybind.Mode == "toggle" then 
-                        Keybind:Press()
-                    elseif Keybind.Mode == "hold" then 
-                        Keybind:Press(true)
+            Library:Connect(UserInputService.InputBegan, function(Input, GameProcessed)
+                if Keybind.Picking or Keybind.IsOpen or GameProcessed or Library:IsTyping() then
+                    return
+                end
+
+                if Keybind.Key and Keybind.Value ~= "None" then
+                    local Matched = tostring(Input.KeyCode) == Keybind.Key or tostring(Input.UserInputType) == Keybind.Key
+                    local Mode = StringLower(tostring(Keybind.Mode or "toggle"))
+
+                    if Matched then
+                        if Mode == "toggle" then 
+                            Keybind:Press()
+                        elseif Mode == "hold" then 
+                            Keybind:Press(true)
+                        end
                     end
                 end
 
@@ -4213,11 +4314,16 @@ do -- Library
                 end
             end)
 
-            Library:Connect(UserInputService.InputEnded, function(Input, Typing)
-                if Typing then return end
+            Library:Connect(UserInputService.InputEnded, function(Input, GameProcessed)
+                if Keybind.Picking or Keybind.IsOpen or GameProcessed or Library:IsTyping() then
+                    return
+                end
 
-                if tostring(Input.KeyCode) == Keybind.Key or tostring(Input.UserInputType) == Keybind.Key and not Keybind.Value == "None" then
-                    if Keybind.Mode == "hold" then 
+                if Keybind.Key and Keybind.Value ~= "None" then
+                    local Matched = tostring(Input.KeyCode) == Keybind.Key or tostring(Input.UserInputType) == Keybind.Key
+                    local Mode = StringLower(tostring(Keybind.Mode or "toggle"))
+
+                    if Matched and Mode == "hold" then 
                         Keybind:Press(false)
                     end
                 end
@@ -4228,9 +4334,11 @@ do -- Library
             end)
 
             if Data.Default then
-               Keybind.Mode = Data.Mode or "toggle"
-               Modes[Keybind.Mode]:Set()
-               Keybind:Set({Key = Data.Default, Mode = Data.Mode})
+                Keybind.Mode = StringLower(tostring(Data.Mode or "toggle"))
+                if Modes[Keybind.Mode] then
+                    Modes[Keybind.Mode]:Set()
+                end
+                Keybind:Set({Key = Data.Default, Mode = Keybind.Mode})
             end
 
             Library.SetFlags[Data.Flag] = function(Value)
@@ -6547,42 +6655,33 @@ do -- Library
                 end
             end))
 
-            local RenderStepped
+            local SearchConnection
+
+            local RunSearch = LPH_NO_VIRTUALIZE(function()
+                Library:ApplySearchFilter(Window, Items["Input"].Instance.Text)
+            end)
 
             Items["Input"]:Connect("Focused", LPH_NO_VIRTUALIZE(function()
-                local PageSearchData = Library.SearchItems[Library.CurrentPage]
+                RunSearch()
 
-                if not PageSearchData then
-                    return 
+                if SearchConnection then
+                    SearchConnection:Disconnect()
+                    SearchConnection = nil
                 end
 
-                RenderStepped = RunService.RenderStepped:Connect(function()
-                    for Index, Value in PageSearchData do 
-                        local Name = Value.Name
-                        local Element = Value.Item
-
-                        if StringFind(StringLower(Name), StringLower(Items["Input"].Instance.Text)) then
-                            if Items["Input"].Instance.Text ~= "" then 
-                                Element.Instance.Visible  = true 
-                                Element:Tween(nil, {Size = Window:GetOldSize(Element)})
-                            else
-                                Element.Instance.Visible  = true 
-                                Element:Tween(nil, {Size = Window:GetOldSize(Element)})
-                            end
-                        else
-                            Window:AddToOldSizes(Element, Element.Instance.Size)
-                            Element:Tween(nil, {Size = UDim2New(Window:GetOldSize(Element).X.Scale, Window:GetOldSize(Element).X.Offset, 0, 0)})
-                            task.wait(0.1)
-                            Element.Instance.Visible = false
-                        end
-                    end
-                end)
+                SearchConnection = Library:Connect(Items["Input"].Instance:GetPropertyChangedSignal("Text"), RunSearch)
             end))
 
             Items["Input"]:Connect("FocusLost", LPH_NO_VIRTUALIZE(function()
-                if RenderStepped then 
-                    RenderStepped:Disconnect()
-                    RenderStepped = nil
+                if SearchConnection then
+                    SearchConnection:Disconnect()
+                    SearchConnection = nil
+                end
+
+                if Items["Input"].Instance.Text == "" then
+                    Library:ClearWindowSearch(Window)
+                else
+                    RunSearch()
                 end
             end))
 
@@ -6611,7 +6710,7 @@ do -- Library
                     end)
                 else
                     Items["Input"].Instance:ReleaseFocus()
-                    Items["Input"].Instance.Text = ""
+                    Library:ClearWindowSearch(Window)
                     SearchTweening = true
 
                     local CloseTween = Items["Search"]:Tween(nil, {Size = SearchClosedSize})
@@ -6861,7 +6960,7 @@ do -- Library
                         HorizontalAlignment = Enum.HorizontalAlignment.Left,
                         VerticalAlignment = Enum.VerticalAlignment.Center,
                         FillDirection = Enum.FillDirection.Horizontal,
-                        Padding = UDimNew(0, 2),
+                        Padding = UDimNew(0, 8),
                         SortOrder = Enum.SortOrder.LayoutOrder
                     })
                 end
@@ -6885,6 +6984,8 @@ do -- Library
                 Debounce = true 
 
                 if Bool then
+                    Library:ClearWindowSearch(Page.Window)
+
                     Items["Inactive"]:Tween(nil, {BackgroundTransparency = Library.Theme["Inline Transparency"] or 0.15})
                     Items["Icon"]:ChangeItemTheme({ImageColor3 = "Accent"})
                     Items["Icon"]:Tween(nil, {ImageColor3 = Library.Theme.Accent, ImageTransparency = 0})
@@ -6927,10 +7028,10 @@ do -- Library
                             if Sub.Items then
                                 if Sub.Active then
                                     Sub.Items["Text"]:Tween(nil, {TextTransparency = 0, TextColor3 = Library.Theme.Accent})
-                                    Sub.Items["Line"]:Tween(nil, {ImageTransparency = 0.35})
+                                    Sub.Items["Background"]:Tween(nil, {BackgroundTransparency = 0.88, BackgroundColor3 = Library.Theme.Inline})
                                 else
                                     Sub.Items["Text"]:Tween(nil, {TextTransparency = 0.35, TextColor3 = Library.Theme["Inactive Text"]})
-                                    Sub.Items["Line"]:Tween(nil, {ImageTransparency = 1})
+                                    Sub.Items["Background"]:Tween(nil, {BackgroundTransparency = 1})
                                 end
                             end
                         end
@@ -6981,7 +7082,7 @@ do -- Library
             end
 
             local Items = { }
-            local SyncSubPageLine
+            local SyncSubPageBackground
 
             do
                 Items["PageContent"] = Instances:Create("Frame", {
@@ -7006,38 +7107,55 @@ do -- Library
                     VerticalFlex = Enum.UIFlexAlignment.Fill
                 })
 
-              Items["Inactive"] = Instances:Create("TextButton", {
-              Parent = (SubPage.Page.Items["Holder"] or SubPage.Page.Items["SubPagesHolder"]).Instance,
-              Name = "\0",
-              FontFace = Library.Font,
-              TextColor3 = FromRGB(0, 0, 0),
-              BorderColor3 = FromRGB(0, 0, 0),
-              Text = "",
-              AutoButtonColor = false,
-              AutomaticSize = Enum.AutomaticSize.None,
-              BackgroundTransparency = 1,
-              Size = UDim2New(0, 85, 1, -8),
-              BorderSizePixel = 0,
-              ZIndex = 4,
-              TextSize = 14,
-              BackgroundColor3 = FromRGB(22, 25, 29)
-            })
+                Items["Inactive"] = Instances:Create("TextButton", {
+                    Parent = (SubPage.Page.Items["Holder"] or SubPage.Page.Items["SubPagesHolder"]).Instance,
+                    Name = "\0",
+                    FontFace = Library.Font,
+                    TextColor3 = FromRGB(0, 0, 0),
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    Text = "",
+                    AutoButtonColor = false,
+                    AutomaticSize = Enum.AutomaticSize.X,
+                    BackgroundTransparency = 1,
+                    Size = UDim2New(0, 0, 1, -8),
+                    BorderSizePixel = 0,
+                    ZIndex = 4,
+                    TextSize = 14,
+                    BackgroundColor3 = FromRGB(22, 25, 29)
+                })
 
-
-                Instances:Create("UIPadding", {
+                Items["Background"] = Instances:Create("Frame", {
                     Parent = Items["Inactive"].Instance,
                     Name = "\0",
+                    AnchorPoint = Vector2New(0.5, 0.5),
+                    Position = UDim2New(0.5, 0, 0.5, 0),
+                    Size = UDim2New(0, 0, 0, 28),
+                    BorderSizePixel = 0,
+                    ZIndex = 4,
+                    BackgroundTransparency = 1,
+                    BackgroundColor3 = FromRGB(31, 34, 40)
+                })  Items["Background"]:AddToTheme({BackgroundColor3 = "Inline"})
+
+                Instances:Create("UICorner", {
+                    Parent = Items["Background"].Instance,
+                    Name = "\0",
+                    CornerRadius = UDimNew(0, 6)
+                })
+
+                Instances:Create("UIPadding", {
+                    Parent = Items["Background"].Instance,
+                    Name = "\0",
                     PaddingRight = UDimNew(0, 12),
-                    PaddingLeft = UDimNew(0, 12)
+                    PaddingLeft = UDimNew(0, 12),
+                    PaddingTop = UDimNew(0, 6),
+                    PaddingBottom = UDimNew(0, 6)
                 })
 
                 Items["Text"] = Instances:Create("TextLabel", {
-                    Parent = Items["Inactive"].Instance,
+                    Parent = Items["Background"].Instance,
                     Name = "\0",
                     FontFace = Library.Font,
                     Active = true,
-                    AnchorPoint = Vector2New(0.5, 0.5),
-                    Position = UDim2New(0.5, 0, 0.5, 0),
                     ZIndex = 5,
                     TextSize = 14,
                     TextTransparency = 0.35,
@@ -7052,48 +7170,32 @@ do -- Library
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 })  Items["Text"]:AddToTheme({TextColor3 = "Inactive Text"})
 
-                Items["Line"] = Library:CreateGlow(Items["Inactive"], {
-                    AnchorPoint = Vector2New(0.5, 1),
-                    Position = UDim2New(0.5, 0, 1, -5),
-                    Size = UDim2New(0, 0, 0, 8),
-                    ImageTransparency = 1,
-                    ZIndex = 4,
-                })
-
-                Instances:Create("UIGradient", {
-                    Parent = Items["Line"].Instance,
-                    Name = "\0",
-                    Transparency = NumSequence{
-                        NumSequenceKeypoint(0, 1),
-                        NumSequenceKeypoint(0.5, 0),
-                        NumSequenceKeypoint(1, 1),
-                    }
-                })
-
                 local TextRef = Items["Text"]
-                local LineRef = Items["Line"]
+                local BackgroundRef = Items["Background"]
 
-                SyncSubPageLine = function()
-                    if not TextRef or not TextRef.Instance or not LineRef or not LineRef.Instance then
+                SyncSubPageBackground = function()
+                    if not TextRef or not TextRef.Instance or not BackgroundRef or not BackgroundRef.Instance then
                         return
                     end
 
-                    local Width = MathMax(TextRef.Instance.TextBounds.X, 1)
-                    LineRef.Instance.Size = UDim2New(0, Width, 0, 8)
+                    local Width = MathMax(TextRef.Instance.TextBounds.X + 24, 1)
+                    BackgroundRef.Instance.Size = UDim2New(0, Width, 0, 28)
                 end
 
-                Library:Connect(TextRef.Instance:GetPropertyChangedSignal("TextBounds"), SyncSubPageLine)
-                SyncSubPageLine()
+                Library:Connect(TextRef.Instance:GetPropertyChangedSignal("TextBounds"), SyncSubPageBackground)
+                SyncSubPageBackground()
 
                 Items["Inactive"]:Connect("MouseEnter", LPH_NO_VIRTUALIZE(function()
                     if not SubPage.Active then
                         Items["Text"]:Tween(nil, {TextTransparency = 0.15})
+                        Items["Background"]:Tween(nil, {BackgroundTransparency = 0.92})
                     end
                 end))
 
                 Items["Inactive"]:Connect("MouseLeave", LPH_NO_VIRTUALIZE(function()
                     if not SubPage.Active then
                         Items["Text"]:Tween(nil, {TextTransparency = 0.35})
+                        Items["Background"]:Tween(nil, {BackgroundTransparency = 1})
                     end
                 end))
 
@@ -7145,16 +7247,19 @@ do -- Library
                 Debounce = true 
 
                 if Bool then
-                    if SyncSubPageLine then
-                        SyncSubPageLine()
+                    Library:ClearWindowSearch(SubPage.Window)
+
+                    if SyncSubPageBackground then
+                        SyncSubPageBackground()
                     end
                     Items["Text"]:ChangeItemTheme({TextColor3 = "Accent"})
                     Items["Text"]:Tween(nil, {TextTransparency = 0, TextColor3 = Library.Theme.Accent})
-                    Items["Line"]:Tween(nil, {ImageTransparency = 0.35})
+                    Items["Background"]:ChangeItemTheme({BackgroundColor3 = "Inline"})
+                    Items["Background"]:Tween(nil, {BackgroundTransparency = 0.88, BackgroundColor3 = Library.Theme.Inline})
                 else
                     Items["Text"]:ChangeItemTheme({TextColor3 = "Inactive Text"})
                     Items["Text"]:Tween(nil, {TextTransparency = 0.35, TextColor3 = Library.Theme["Inactive Text"]})
-                    Items["Line"]:Tween(nil, {ImageTransparency = 1})
+                    Items["Background"]:Tween(nil, {BackgroundTransparency = 1})
                 end
 
                 local Descendants = Items["PageContent"].Instance:GetDescendants()
@@ -8237,13 +8342,13 @@ do -- Library
                     Flag = Data.Flag or Data.flag or Library:NextFlag(),
                     Default = Data.Default or Data.default or Enum.KeyCode.RightShift,
                     Callback = Data.Callback or Data.callback or function() end,
-                    Mode = Data.Mode or Data.mode or "Toggle",
+                    Mode = Data.Mode or Data.mode or "toggle",
                     NoKeyBindList = Data.NoKeyBindList or false;
                 }
 
                 local NewKeybind, KeybindItems = Components.Keybind({
                     Name = Keybind.Name,
-                    Parent = ToggleItems["Toggle"],
+                    Parent = ToggleItems["SubElements"],
                     Window = Toggle.Window,
                     Flag = Keybind.Flag,
                     Default = Keybind.Default,
@@ -8824,7 +8929,7 @@ do -- Library
                     Flag = Data.Flag or Data.flag or Library:NextFlag(),
                     Default = Data.Default or Data.default or Enum.KeyCode.RightShift,
                     Callback = Data.Callback or Data.callback or function() end,
-                    Mode = Data.Mode or Data.mode or "Toggle",
+                    Mode = Data.Mode or Data.mode or "toggle",
                     NoKeyBindList = Data.NoKeyBindList or false;
                 }
 
