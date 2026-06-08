@@ -147,6 +147,8 @@ do -- Library
             ["GroupSearch"] = {"GroupSearch.png", "https://github.com/xdomestos1-art/innnnnnn/blob/main/icons/GroupSearch.png?raw=true"},
         },
 
+        GlowImage = "rbxassetid://83933299080110",
+
         Friendly_Players = {}, Priority_Players = {}, Selected_Player = nil,
 
         -- Ignore below
@@ -724,6 +726,36 @@ do -- Library
         end
     end
 
+    Library.AccentColorSequence = function(self)
+        return RGBSequence{
+            RGBSequenceKeypoint(0, self.Theme.Accent),
+            RGBSequenceKeypoint(1, self.Theme["Dark Gradient"])
+        }
+    end
+
+    Library.CreateGlow = function(self, Parent, Props)
+        Props = Props or { }
+
+        local Glow = Instances:Create("ImageLabel", {
+            Parent = Parent.Instance or Parent,
+            Name = "\0",
+            BackgroundTransparency = 1,
+            BorderSizePixel = 0,
+            Image = self.GlowImage,
+            ImageColor3 = Props.ImageColor3 or self.Theme.Accent,
+            ImageTransparency = Props.ImageTransparency or 0.5,
+            ScaleType = Enum.ScaleType.Stretch,
+            Size = Props.Size or UDim2New(1, 0, 1, 0),
+            Position = Props.Position or UDim2New(0, 0, 0, 0),
+            AnchorPoint = Props.AnchorPoint or Vector2New(0, 0),
+            ZIndex = Props.ZIndex or 1,
+        })
+
+        Glow:AddToTheme({ImageColor3 = "Accent"})
+
+        return Glow
+    end
+
     local CustomFont = { } do
         function CustomFont:New(Name, Weight, Style, Data)
             --[[if isfile(Library.Folders.Assets .. "/" .. Name .. ".json") then
@@ -790,7 +822,7 @@ do -- Library
             ["Border"] = FromRGB(58, 64, 76),
 
             ["Accent"] = FromRGB(65, 155, 255),
-            ["Dark Gradient"] = FromRGB(80, 130, 255),
+            ["Dark Gradient"] = FromRGB(100, 190, 255),
 
             ["Panel Transparency"] = 0.05,
             ["Sidebar Transparency"] = 0.03
@@ -4613,7 +4645,7 @@ do -- Library
                     });
 
                     Items.HealthBarText = Instances:Create( "TextLabel" , {
-                        FontFace = ESPFonts["Verdana"];
+                        FontFace = Library.Font;
                         Parent = Items.HealthBar.Instance;
                         TextColor3 = FromRGB(0, 255, 0);
                         Text = "100";
@@ -4636,7 +4668,7 @@ do -- Library
 
                 -- Name
                         Items.Name = Instances:Create( "TextLabel" , {
-                            FontFace = ESPFonts["Verdana"];
+                            FontFace = Library.Font;
                             Parent = Items.TopTexts.Instance;
                             TextColor3 = FromRGB(255, 255, 255);
                             TextStrokeColor3 = FromRGB(255, 255, 255);
@@ -4659,7 +4691,7 @@ do -- Library
                         });
 
                         Items.WeaponText = Instances:Create( "TextLabel" , {
-                            FontFace = ESPFonts["Verdana"];
+                            FontFace = Library.Font;
                             Parent = Items.RightTexts.Instance;
                             TextColor3 = FromRGB(255, 255, 255);
                             TextStrokeColor3 = FromRGB(255, 255, 255);
@@ -4681,7 +4713,7 @@ do -- Library
                         });
 
                         Items.Distance = Instances:Create( "TextLabel" , {
-                            FontFace = ESPFonts["Verdana"];
+                            FontFace = Library.Font;
                             Parent = Items.BottomTexts.Instance;
                             TextColor3 = FromRGB(255, 255, 255);
                             TextStrokeColor3 = FromRGB(255, 255, 255);
@@ -6165,6 +6197,21 @@ do -- Library
                     CornerRadius = UDimNew(0, 5)
                 })
 
+                Instances:Create("UIGradient", {
+                    Parent = Items["Pages"].Instance,
+                    Name = "\0",
+                    Rotation = 90,
+                    Color = RGBSequence{
+                        RGBSequenceKeypoint(0, FromRGB(31, 34, 40)),
+                        RGBSequenceKeypoint(1, FromRGB(18, 20, 24))
+                    }
+                }):AddToTheme({Color = function()
+                    return RGBSequence{
+                        RGBSequenceKeypoint(0, Library:GetLighterColor(Library.Theme.Inline, 1.08)),
+                        RGBSequenceKeypoint(1, Library.Theme.Background)
+                    }
+                end})
+
                 Items["Logo"] = Instances:Create("ImageLabel", {
                     Parent = Items["Pages"].Instance,
                     Name = "\0",
@@ -6256,7 +6303,7 @@ do -- Library
                     Size = UDim2New(1, 0, 0, 1),
                     ZIndex = 2,
                     BorderSizePixel = 0,
-                    BackgroundTransparency = 0.65,
+                    BackgroundTransparency = 0.5,
                     BackgroundColor3 = FromRGB(38, 40, 50)
                 }):AddToTheme({BackgroundColor3 = "Border"})
 
@@ -6667,17 +6714,28 @@ do -- Library
                     CornerRadius = UDimNew(0, 8)
                 })
 
-                Items["PageLine"] = Instances:Create("Frame", {
+                Instances:Create("UIGradient", {
                     Parent = Items["Inactive"].Instance,
                     Name = "\0",
-                    AnchorPoint = Vector2New(0, 0.5),
-                    Position = UDim2New(0, 4, 0.5, 0),
-                    Size = UDim2New(0, 2, 0, 20),
-                    BorderSizePixel = 0,
-                    ZIndex = 8,
-                    BackgroundTransparency = 1,
-                    BackgroundColor3 = FromRGB(142, 91, 218)
-                })  Items["PageLine"]:AddToTheme({BackgroundColor3 = "Accent"})
+                    Rotation = 90,
+                    Color = RGBSequence{
+                        RGBSequenceKeypoint(0, FromRGB(65, 155, 255)),
+                        RGBSequenceKeypoint(1, FromRGB(24, 26, 31))
+                    }
+                }):AddToTheme({Color = function()
+                    return RGBSequence{
+                        RGBSequenceKeypoint(0, Library:GetLighterColor(Library.Theme.Accent, 1.15)),
+                        RGBSequenceKeypoint(1, Library.Theme.Inline)
+                    }
+                end})
+
+                Items["IconGlow"] = Library:CreateGlow(Items["Inactive"], {
+                    Size = UDim2New(1, 10, 1, 10),
+                    Position = UDim2New(0.5, 0, 0.5, 0),
+                    AnchorPoint = Vector2New(0.5, 0.5),
+                    ImageTransparency = 1,
+                    ZIndex = 5,
+                })
 
                 Items["Icon"] = Instances:Create("ImageLabel", {
                     Parent = Items["Inactive"].Instance,
@@ -6693,7 +6751,7 @@ do -- Library
                     ZIndex = 7,
                     BorderSizePixel = 0,
                     BackgroundColor3 = FromRGB(255, 255, 255)
-                })  Items["Icon"]:AddToTheme({ImageColor3 = "Image"})
+                })  Items["Icon"]:AddToTheme({ImageColor3 = "Inactive Text"})
 
                 Items["Text"] = Instances:Create("TextLabel", {
                     Parent = Items["Inactive"].Instance,
@@ -6716,8 +6774,8 @@ do -- Library
 
                 Items["Inactive"]:Connect("MouseEnter", LPH_NO_VIRTUALIZE(function()
                     if not Page.Active then
-                        Items["Inactive"]:Tween(nil, {BackgroundTransparency = 0.85})
-                        Items["Icon"]:Tween(nil, {ImageTransparency = 0.2})
+                        Items["Inactive"]:Tween(nil, {BackgroundTransparency = 0.9})
+                        Items["Icon"]:Tween(nil, {ImageTransparency = 0.15})
                     end
                 end))
 
@@ -6830,14 +6888,14 @@ do -- Library
                     Items["Inactive"]:Tween(nil, {BackgroundTransparency = Library.Theme["Inline Transparency"] or 0.15})
                     Items["Icon"]:ChangeItemTheme({ImageColor3 = "Accent"})
                     Items["Icon"]:Tween(nil, {ImageColor3 = Library.Theme.Accent, ImageTransparency = 0})
-                    Items["PageLine"]:Tween(nil, {BackgroundTransparency = 0})
+                    Items["IconGlow"]:Tween(nil, {ImageTransparency = 0.55})
 
                     Library.CurrentPage = Page
                 else
                     Items["Inactive"]:Tween(nil, {BackgroundTransparency = 1})
-                    Items["Icon"]:ChangeItemTheme({ImageColor3 = "Image"})
-                    Items["Icon"]:Tween(nil, {ImageColor3 = Library.Theme.Image, ImageTransparency = 0.35})
-                    Items["PageLine"]:Tween(nil, {BackgroundTransparency = 1})
+                    Items["Icon"]:ChangeItemTheme({ImageColor3 = "Inactive Text"})
+                    Items["Icon"]:Tween(nil, {ImageColor3 = Library.Theme["Inactive Text"], ImageTransparency = 0.35})
+                    Items["IconGlow"]:Tween(nil, {ImageTransparency = 1})
                 end
 
                 local Descendants = Items["PageContent"].Instance:GetChildren()
@@ -6869,10 +6927,10 @@ do -- Library
                             if Sub.Items then
                                 if Sub.Active then
                                     Sub.Items["Text"]:Tween(nil, {TextTransparency = 0, TextColor3 = Library.Theme.Accent})
-                                    Sub.Items["Line"]:Tween(nil, {BackgroundTransparency = 0})
+                                    Sub.Items["Line"]:Tween(nil, {ImageTransparency = 0.35})
                                 else
-                                    Sub.Items["Text"]:Tween(nil, {TextTransparency = 0.5, TextColor3 = Library.Theme["Inactive Text"]})
-                                    Sub.Items["Line"]:Tween(nil, {BackgroundTransparency = 1})
+                                    Sub.Items["Text"]:Tween(nil, {TextTransparency = 0.35, TextColor3 = Library.Theme["Inactive Text"]})
+                                    Sub.Items["Line"]:Tween(nil, {ImageTransparency = 1})
                                 end
                             end
                         end
@@ -6982,7 +7040,7 @@ do -- Library
                     Position = UDim2New(0.5, 0, 0.5, 0),
                     ZIndex = 5,
                     TextSize = 14,
-                    TextTransparency = 0.5,
+                    TextTransparency = 0.35,
                     Size = UDim2New(0, 0, 0, 15),
                     TextColor3 = FromRGB(185, 185, 185),
                     BorderColor3 = FromRGB(0, 0, 0),
@@ -6994,16 +7052,23 @@ do -- Library
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 })  Items["Text"]:AddToTheme({TextColor3 = "Inactive Text"})
 
-                Items["Line"] = Instances:Create("Frame", {
-                    Parent = Items["Inactive"].Instance,
-                    Name = "\0",
+                Items["Line"] = Library:CreateGlow(Items["Inactive"], {
                     AnchorPoint = Vector2New(0.5, 1),
-                    Position = UDim2New(0.5, 0, 1, -6),
-                    BorderSizePixel = 0,
-                    Size = UDim2New(0, 0, 0, 2),
-                    BackgroundTransparency = 1,
-                    BackgroundColor3 = FromRGB(142, 91, 218)
-                })  Items["Line"]:AddToTheme({BackgroundColor3 = "Accent"})
+                    Position = UDim2New(0.5, 0, 1, -5),
+                    Size = UDim2New(0, 0, 0, 8),
+                    ImageTransparency = 1,
+                    ZIndex = 4,
+                })
+
+                Instances:Create("UIGradient", {
+                    Parent = Items["Line"].Instance,
+                    Name = "\0",
+                    Transparency = NumSequence{
+                        NumSequenceKeypoint(0, 1),
+                        NumSequenceKeypoint(0.5, 0),
+                        NumSequenceKeypoint(1, 1),
+                    }
+                })
 
                 local TextRef = Items["Text"]
                 local LineRef = Items["Line"]
@@ -7014,7 +7079,7 @@ do -- Library
                     end
 
                     local Width = MathMax(TextRef.Instance.TextBounds.X, 1)
-                    LineRef.Instance.Size = UDim2New(0, Width, 0, 2)
+                    LineRef.Instance.Size = UDim2New(0, Width, 0, 8)
                 end
 
                 Library:Connect(TextRef.Instance:GetPropertyChangedSignal("TextBounds"), SyncSubPageLine)
@@ -7022,13 +7087,13 @@ do -- Library
 
                 Items["Inactive"]:Connect("MouseEnter", LPH_NO_VIRTUALIZE(function()
                     if not SubPage.Active then
-                        Items["Text"]:Tween(nil, {TextTransparency = 0.25})
+                        Items["Text"]:Tween(nil, {TextTransparency = 0.15})
                     end
                 end))
 
                 Items["Inactive"]:Connect("MouseLeave", LPH_NO_VIRTUALIZE(function()
                     if not SubPage.Active then
-                        Items["Text"]:Tween(nil, {TextTransparency = 0.5})
+                        Items["Text"]:Tween(nil, {TextTransparency = 0.35})
                     end
                 end))
 
@@ -7085,11 +7150,11 @@ do -- Library
                     end
                     Items["Text"]:ChangeItemTheme({TextColor3 = "Accent"})
                     Items["Text"]:Tween(nil, {TextTransparency = 0, TextColor3 = Library.Theme.Accent})
-                    Items["Line"]:Tween(nil, {BackgroundTransparency = 0})
+                    Items["Line"]:Tween(nil, {ImageTransparency = 0.35})
                 else
                     Items["Text"]:ChangeItemTheme({TextColor3 = "Inactive Text"})
-                    Items["Text"]:Tween(nil, {TextTransparency = 0.5, TextColor3 = Library.Theme["Inactive Text"]})
-                    Items["Line"]:Tween(nil, {BackgroundTransparency = 1})
+                    Items["Text"]:Tween(nil, {TextTransparency = 0.35, TextColor3 = Library.Theme["Inactive Text"]})
+                    Items["Line"]:Tween(nil, {ImageTransparency = 1})
                 end
 
                 local Descendants = Items["PageContent"].Instance:GetDescendants()
@@ -7982,26 +8047,44 @@ do -- Library
                     CornerRadius = UDimNew(0, 5)
                 })
 
-                Items["AccentLineGlow"] = Instances:Create("Frame", {
-                    Parent = Items["Section"].Instance,
-                    Name = "\0",
+                Items["AccentLineGlow"] = Library:CreateGlow(Items["Section"], {
                     Position = UDim2New(0, 0, 0, 0),
-                    Size = UDim2New(1, 0, 0, 5),
-                    BorderSizePixel = 0,
+                    Size = UDim2New(1, 0, 0, 10),
+                    ImageTransparency = 0.45,
                     ZIndex = 2,
-                    BackgroundTransparency = 0.8,
-                    BackgroundColor3 = FromRGB(142, 91, 218)
-                })  Items["AccentLineGlow"]:AddToTheme({BackgroundColor3 = "Accent"})
+                })
+
+                Instances:Create("UIGradient", {
+                    Parent = Items["AccentLineGlow"].Instance,
+                    Name = "\0",
+                    Transparency = NumSequence{
+                        NumSequenceKeypoint(0, 1),
+                        NumSequenceKeypoint(0.5, 0.25),
+                        NumSequenceKeypoint(1, 1),
+                    }
+                })
 
                 Items["AccentLine"] = Instances:Create("Frame", {
                     Parent = Items["Section"].Instance,
                     Name = "\0",
-                    Position = UDim2New(0, 0, 0, 1),
+                    Position = UDim2New(0, 0, 0, 2),
                     Size = UDim2New(1, 0, 0, 2),
                     BorderSizePixel = 0,
                     ZIndex = 3,
-                    BackgroundColor3 = FromRGB(142, 91, 218)
+                    BackgroundColor3 = FromRGB(65, 155, 255)
                 })  Items["AccentLine"]:AddToTheme({BackgroundColor3 = "Accent"})
+
+                Instances:Create("UIGradient", {
+                    Parent = Items["AccentLine"].Instance,
+                    Name = "\0",
+                    Rotation = 0,
+                    Color = RGBSequence{
+                        RGBSequenceKeypoint(0, FromRGB(65, 155, 255)),
+                        RGBSequenceKeypoint(1, FromRGB(100, 190, 255))
+                    }
+                }):AddToTheme({Color = function()
+                    return Library:AccentColorSequence()
+                end})
 
                 Items["Topbar"] = Instances:Create("Frame", {
                     Parent = Items["Section"].Instance,
@@ -8224,10 +8307,17 @@ do -- Library
                 Instances:Create("UIGradient", {
                     Parent = Items["Button"].Instance,
                     Name = "\0",
-                    Rotation = 84,
-                    Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(211, 211, 211))}
+                    Rotation = 90,
+                    Color = RGBSequence{
+                        RGBSequenceKeypoint(0, FromRGB(48, 54, 64)),
+                        RGBSequenceKeypoint(1, FromRGB(26, 30, 36))
+                    }
                 }):AddToTheme({Color = function()
-                    return RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, Library.Theme["Dark Gradient"])}
+                    local Element = Library.Theme.Element
+                    return RGBSequence{
+                        RGBSequenceKeypoint(0, Library:GetLighterColor(Element, 1.2)),
+                        RGBSequenceKeypoint(1, Library:GetDarkerColor(Element))
+                    }
                 end})
 
                 Items["Text"] = Instances:Create("TextLabel", {
@@ -8379,8 +8469,15 @@ do -- Library
                     BorderColor3 = FromRGB(0, 0, 0),
                     ZIndex = 2,
                     BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(196, 231, 255)
+                    BackgroundColor3 = FromRGB(65, 155, 255)
                 })  Items["Accent"]:AddToTheme({BackgroundColor3 = "Accent"})
+
+                Library:CreateGlow(Items["Accent"], {
+                    Size = UDim2New(1, 8, 1, 8),
+                    Position = UDim2New(0, -4, 0, -4),
+                    ImageTransparency = 0.4,
+                    ZIndex = 0,
+                })
 
                 Instances:Create("UICorner", {
                     Parent = Items["Accent"].Instance,
@@ -8391,10 +8488,13 @@ do -- Library
                 Instances:Create("UIGradient", {
                     Parent = Items["Accent"].Instance,
                     Name = "\0",
-                    Rotation = 84,
-                    Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(211, 211, 211))}
+                    Rotation = 0,
+                    Color = RGBSequence{
+                        RGBSequenceKeypoint(0, FromRGB(65, 155, 255)),
+                        RGBSequenceKeypoint(1, FromRGB(100, 190, 255))
+                    }
                 }):AddToTheme({Color = function()
-                    return RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, Library.Theme["Dark Gradient"])}
+                    return Library:AccentColorSequence()
                 end})
 
                 Items["Value"] = Instances:Create("TextLabel", {
