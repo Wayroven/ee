@@ -1356,7 +1356,7 @@ do -- Library
 
     Library.GetLighterColor = LPH_NO_VIRTUALIZE(function(self, Color, Increment)
         local Hue, Saturation, Value = Color:ToHSV()
-        return FromHSV(Hue, Saturation, Value * Increment)
+        return FromHSV(Hue, Saturation, MathClamp(Value * Increment, 0, 1))
     end)
 
     local Components = { } do
