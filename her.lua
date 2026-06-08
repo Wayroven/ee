@@ -739,6 +739,7 @@ do -- Library
         local Glow = Instances:Create("ImageLabel", {
             Parent = Parent.Instance or Parent,
             Name = "\0",
+            Active = false,
             BackgroundTransparency = 1,
             BorderSizePixel = 0,
             Image = self.GlowImage,
@@ -990,8 +991,12 @@ do -- Library
     end
 
     Library.Round = function(self, Number, Float)
-        local Multiplier = 1 / (Float or 1)
-        return MathFloor(Number * Multiplier) / Multiplier
+        if not Float or Float <= 0 then
+            return MathFloor(Number + 0.5)
+        end
+
+        local Multiplier = 1 / Float
+        return MathFloor(Number * Multiplier + 0.5) / Multiplier
     end
 
     Library.Thread = function(self, Function)
@@ -1015,7 +1020,7 @@ do -- Library
 
             if not Success then
                 Library:Notification({
-                    Name = "midnight | Error",
+                    Name = "stellarz | Error",
                     Description = "Error caught, please report it in the discord.\n"..Result,
                     Duration = 10,
                 })
@@ -1237,13 +1242,13 @@ do -- Library
 
         if Theme == "Accent" and Window then
             Window:SetText(string.format(
-                '<font color="rgb(255,255,255)">mid</font><font color="rgb(%d,%d,%d)">night</font>',
+                '<font color="rgb(255,255,255)">stellar</font><font color="rgb(%d,%d,%d)">z</font>',
                 Color.R*255,
                 Color.G*255,
                 Color.B*255
             ))
 
-            Watermark:SetText(string.format('<font color="rgb(255,255,255)">mid</font><font color="rgb(%d,%d,%d)">night</font> - %s', Color.R*255, Color.G*255, Color.B*255, os.date("%b. %d %Y, %X")))
+            Watermark:SetText(string.format('<font color="rgb(255,255,255)">stellar</font><font color="rgb(%d,%d,%d)">z.gg</font> - %s', Color.R*255, Color.G*255, Color.B*255, os.date("%b. %d %Y, %X")))
         end
 
         for _, Item in self.ThemeItems do
@@ -4056,18 +4061,6 @@ do -- Library
 
                 Toggle:Set(true)
 
-                Dropdown.Callback = function(Value)
-                    Keybind.Mode = StringLower(tostring(Value))
-
-                    Library.Flags[Data.Flag] = {
-                        Mode = Keybind.Mode,
-                        Key = Keybind.Key,
-                        Toggled = Keybind.Toggled
-                    }
-
-                    Update()
-                end 
-
                 getgenv().Options[Toggle.Flag] = Toggle
             end
 
@@ -4085,6 +4078,20 @@ do -- Library
                 end
 
                 KeylistItem:Set(Keybind.Toggled)
+            end
+
+            if ModesDropdown then
+                ModesDropdown.Callback = function(Value)
+                    Keybind.Mode = StringLower(tostring(Value))
+
+                    Library.Flags[Data.Flag] = {
+                        Mode = Keybind.Mode,
+                        Key = Keybind.Key,
+                        Toggled = Keybind.Toggled
+                    }
+
+                    Update()
+                end
             end
 
             local Debounce = false
@@ -6121,64 +6128,76 @@ do -- Library
             end
 
             function KeybindList:Add(Key, Name)
-                local NewKey = Instances:Create("TextLabel", {
+                local Row = Instances:Create("Frame", {
                     Parent = Items["Content"].Instance,
                     Name = "\0",
+                    BackgroundTransparency = 1,
+                    BorderSizePixel = 0,
+                    AutomaticSize = Enum.AutomaticSize.XY,
+                    Size = UDim2New(0, 0, 0, 20),
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                })
+
+                Instances:Create("UIListLayout", {
+                    Parent = Row.Instance,
+                    Name = "\0",
+                    FillDirection = Enum.FillDirection.Horizontal,
+                    VerticalAlignment = Enum.VerticalAlignment.Center,
+                    Padding = UDimNew(0, 8),
+                    SortOrder = Enum.SortOrder.LayoutOrder
+                })
+
+                local NewKey = Instances:Create("TextLabel", {
+                    Parent = Row.Instance,
+                    Name = "\0",
+                    LayoutOrder = 1,
                     FontFace = Library.Font,
                     TextColor3 = FromRGB(255, 255, 255),
                     TextTransparency = 0.5,
                     Text = "(" .. Key .. ") - ".. Name .. "",
-                    Size = UDim2New(1, 0, 0, 20),
                     BorderSizePixel = 0,
                     BackgroundTransparency = 1,
                     TextXAlignment = Enum.TextXAlignment.Left,
                     BorderColor3 = FromRGB(0, 0, 0),
-                    AutomaticSize = Enum.AutomaticSize.X,
+                    AutomaticSize = Enum.AutomaticSize.XY,
                     TextSize = 14,
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 })  NewKey:AddToTheme({TextColor3 = "Text"})
 
                 local NewKeyStatus = Instances:Create("TextLabel", {
-                    Parent = NewKey.Instance,
+                    Parent = Row.Instance,
                     Name = "\0",
+                    LayoutOrder = 2,
                     FontFace = Library.Font,
                     TextColor3 = FromRGB(255, 255, 255),
                     TextTransparency = 0.5,
                     Text = "off",
-                    Size = UDim2New(0, 0, 0, 20),
-                    AnchorPoint = Vector2New(1, 0),
                     BorderSizePixel = 0,
                     BackgroundTransparency = 1,
-                    Position = UDim2New(1, 50, 0, 0),
                     BorderColor3 = FromRGB(0, 0, 0),
-                    AutomaticSize = Enum.AutomaticSize.X,
+                    AutomaticSize = Enum.AutomaticSize.XY,
                     TextSize = 14,
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 })  NewKeyStatus:AddToTheme({TextColor3 = "Text"})
 
-                Instances:Create("UIPadding", {
-                    Parent = NewKey.Instance,
-                    Name = "\0",
-                    PaddingRight = UDimNew(0, 50)
-                })
-
-                function NewKey:SetText(Key, Name)
-                    NewKey.Instance.Text =  "(" .. Key .. ") - ".. Name .. ""
+                function Row:SetText(Key, Name)
+                    NewKey.Instance.Text = "(" .. Key .. ") - ".. Name .. ""
                 end
 
-                function NewKey:SetStatus(Status)
+                function Row:SetStatus(Status)
                     NewKeyStatus.Instance.Text = Status
                 end
 
-                function NewKey:Remove()
-                    NewKey:Clean()
+                function Row:Remove()
+                    Row:Clean()
                 end
 
-                function NewKey:SetVisibility(Bool)
-                    NewKey.Instance.Visible = Bool
+                function Row:SetVisibility(Bool)
+                    Row.Instance.Visible = Bool
                 end
 
-                function NewKey:Set(Bool)
+                function Row:Set(Bool)
                     if Bool then 
                         NewKey:Tween(nil, {TextTransparency = 0})
                         NewKeyStatus:Tween(nil, {TextTransparency = 0})
@@ -6188,7 +6207,7 @@ do -- Library
                     end
                 end
 
-                return NewKey
+                return Row
             end
 
             function KeybindList:SetVisibility(Bool)
@@ -7082,7 +7101,6 @@ do -- Library
             end
 
             local Items = { }
-            local SyncSubPageBackground
 
             do
                 Items["PageContent"] = Instances:Create("Frame", {
@@ -7117,7 +7135,7 @@ do -- Library
                     AutoButtonColor = false,
                     AutomaticSize = Enum.AutomaticSize.X,
                     BackgroundTransparency = 1,
-                    Size = UDim2New(0, 0, 1, -8),
+                    Size = UDim2New(0, 0, 0, 36),
                     BorderSizePixel = 0,
                     ZIndex = 4,
                     TextSize = 14,
@@ -7127,8 +7145,9 @@ do -- Library
                 Items["Background"] = Instances:Create("Frame", {
                     Parent = Items["Inactive"].Instance,
                     Name = "\0",
-                    AnchorPoint = Vector2New(0.5, 0.5),
-                    Position = UDim2New(0.5, 0, 0.5, 0),
+                    AnchorPoint = Vector2New(0, 0.5),
+                    Position = UDim2New(0, 0, 0.5, 0),
+                    AutomaticSize = Enum.AutomaticSize.X,
                     Size = UDim2New(0, 0, 0, 28),
                     BorderSizePixel = 0,
                     ZIndex = 4,
@@ -7169,21 +7188,6 @@ do -- Library
                     BorderSizePixel = 0,
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 })  Items["Text"]:AddToTheme({TextColor3 = "Inactive Text"})
-
-                local TextRef = Items["Text"]
-                local BackgroundRef = Items["Background"]
-
-                SyncSubPageBackground = function()
-                    if not TextRef or not TextRef.Instance or not BackgroundRef or not BackgroundRef.Instance then
-                        return
-                    end
-
-                    local Width = MathMax(TextRef.Instance.TextBounds.X + 24, 1)
-                    BackgroundRef.Instance.Size = UDim2New(0, Width, 0, 28)
-                end
-
-                Library:Connect(TextRef.Instance:GetPropertyChangedSignal("TextBounds"), SyncSubPageBackground)
-                SyncSubPageBackground()
 
                 Items["Inactive"]:Connect("MouseEnter", LPH_NO_VIRTUALIZE(function()
                     if not SubPage.Active then
@@ -7249,9 +7253,6 @@ do -- Library
                 if Bool then
                     Library:ClearWindowSearch(SubPage.Window)
 
-                    if SyncSubPageBackground then
-                        SyncSubPageBackground()
-                    end
                     Items["Text"]:ChangeItemTheme({TextColor3 = "Accent"})
                     Items["Text"]:Tween(nil, {TextTransparency = 0, TextColor3 = Library.Theme.Accent})
                     Items["Background"]:ChangeItemTheme({BackgroundColor3 = "Inline"})
@@ -8558,18 +8559,10 @@ do -- Library
                     CornerRadius = UDimNew(0, 4)
                 })
 
-                Instances:Create("UIGradient", {
-                    Parent = Items["RealSlider"].Instance,
-                    Name = "\0",
-                    Rotation = 84,
-                    Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(211, 211, 211))}
-                }):AddToTheme({Color = function()
-                    return RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, Library.Theme["Dark Gradient"])}
-                end})
-
                 Items["Accent"] = Instances:Create("Frame", {
                     Parent = Items["RealSlider"].Instance,
                     Name = "\0",
+                    Active = false,
                     Size = UDim2New(0.5, 0, 1, 0),
                     BorderColor3 = FromRGB(0, 0, 0),
                     ZIndex = 2,
@@ -8577,30 +8570,11 @@ do -- Library
                     BackgroundColor3 = FromRGB(65, 155, 255)
                 })  Items["Accent"]:AddToTheme({BackgroundColor3 = "Accent"})
 
-                Library:CreateGlow(Items["Accent"], {
-                    Size = UDim2New(1, 8, 1, 8),
-                    Position = UDim2New(0, -4, 0, -4),
-                    ImageTransparency = 0.4,
-                    ZIndex = 0,
-                })
-
                 Instances:Create("UICorner", {
                     Parent = Items["Accent"].Instance,
                     Name = "\0",
                     CornerRadius = UDimNew(0, 4)
                 })
-
-                Instances:Create("UIGradient", {
-                    Parent = Items["Accent"].Instance,
-                    Name = "\0",
-                    Rotation = 0,
-                    Color = RGBSequence{
-                        RGBSequenceKeypoint(0, FromRGB(65, 155, 255)),
-                        RGBSequenceKeypoint(1, FromRGB(100, 190, 255))
-                    }
-                }):AddToTheme({Color = function()
-                    return Library:AccentColorSequence()
-                end})
 
                 Items["Value"] = Instances:Create("TextLabel", {
                     Parent = Items["Slider"].Instance,
@@ -8630,11 +8604,16 @@ do -- Library
             end
 
             function Slider:Set(Value)
+                if Value ~= Value then
+                    Value = Slider.Default or Slider.Min
+                end
+
                 Slider.Value = Library:Round(MathClamp(Value, Slider.Min, Slider.Max), Slider.Decimals)
 
                 Library.Flags[Slider.Flag] = Slider.Value
 
-                Items["Accent"]:Tween(TweenInfo.new(0.21, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2New((Slider.Value - Slider.Min) / (Slider.Max - Slider.Min), 0, 1, 0)})
+                local Progress = (Slider.Max - Slider.Min) > 0 and (Slider.Value - Slider.Min) / (Slider.Max - Slider.Min) or 0
+                Items["Accent"]:Tween(TweenInfo.new(0.21, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2New(MathClamp(Progress, 0, 1), 0, 1, 0)})
                 Items["Value"].Instance.Text = StringFormat("%s%s", tostring(Slider.Value), Slider.Suffix)
 
                 if Slider.Callback then 
@@ -8667,7 +8646,12 @@ do -- Library
                 if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
                     Slider.Sliding = true 
 
-                    local SizeX = (Input.Position.X - Items["RealSlider"].Instance.AbsolutePosition.X) / Items["RealSlider"].Instance.AbsoluteSize.X
+                    local TrackWidth = Items["RealSlider"].Instance.AbsoluteSize.X
+                    if TrackWidth <= 0 then
+                        return
+                    end
+
+                    local SizeX = MathClamp((Input.Position.X - Items["RealSlider"].Instance.AbsolutePosition.X) / TrackWidth, 0, 1)
                     local Value = ((Slider.Max - Slider.Min) * SizeX) + Slider.Min
 
                     Slider:Set(Value)
@@ -8690,7 +8674,12 @@ do -- Library
             Library:Connect(UserInputService.InputChanged, function(Input)
                 if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
                     if Slider.Sliding then
-                        local SizeX = (Input.Position.X - Items["RealSlider"].Instance.AbsolutePosition.X) / Items["RealSlider"].Instance.AbsoluteSize.X
+                        local TrackWidth = Items["RealSlider"].Instance.AbsoluteSize.X
+                        if TrackWidth <= 0 then
+                            return
+                        end
+
+                        local SizeX = MathClamp((Input.Position.X - Items["RealSlider"].Instance.AbsolutePosition.X) / TrackWidth, 0, 1)
                         local Value = ((Slider.Max - Slider.Min) * SizeX) + Slider.Min
 
                         Slider:Set(Value)
