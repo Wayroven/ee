@@ -999,6 +999,20 @@ do -- Library
         return MathFloor(Number * Multiplier + 0.5) / Multiplier
     end
 
+    Library.GetDropdownHeight = function(self, Dropdown, MaxSize)
+        local OptionCount = 0
+
+        for _ in Dropdown.Options do
+            OptionCount += 1
+        end
+
+        local ContentHeight = OptionCount * 27 + 16
+        local SearchHeight = 46
+        local Cap = MaxSize or (IsMobile and 165 or 300)
+
+        return MathClamp(ContentHeight + SearchHeight, 120, Cap)
+    end
+
     Library.Thread = function(self, Function)
         local NewThread = coroutine.create(Function)
         
@@ -1828,20 +1842,20 @@ do -- Library
                     Name = "\0",
                     Active = true,
                     AutomaticCanvasSize = Enum.AutomaticSize.Y,
-                    ScrollBarThickness = 2,
+                    ScrollBarThickness = IsMobile and 3 or 6,
                     BorderColor3 = FromRGB(0, 0, 0),
-                    Size = UDim2New(1, -8, 1, -46),
+                    Size = UDim2New(1, -12, 1, -46),
                     CanvasSize = UDim2New(0, 0, 0, 0),
                     BackgroundTransparency = 1,
                     Position = UDim2New(0, 0, 0, 38),
                     BorderSizePixel = 0,
-                    ScrollBarImageColor3 = Library.Theme.Border,
+                    ScrollBarImageColor3 = Library.Theme.Accent,
                     BottomImage = "rbxassetid://123813291349824",
                     TopImage = "rbxassetid://123813291349824",
                     MidImage = "rbxassetid://123813291349824",
                     ZIndex = 5,
                     BackgroundColor3 = FromRGB(255, 255, 255)
-                })  Items["Holder"]:AddToTheme({ScrollBarImageColor3 = "Border"})
+                })  Items["Holder"]:AddToTheme({ScrollBarImageColor3 = "Accent"})
 
                 Instances:Create("UIListLayout", {
                     Parent = Items["Holder"].Instance,
@@ -2170,11 +2184,14 @@ do -- Library
 
                 if Bool then 
                     Items["OptionHolder"].Instance.Visible = true
-                    Items["Holder"].Instance.ZIndex = 11
+                    Items["OptionHolder"].Instance.ZIndex = 100
+                    Items["Holder"].Instance.ZIndex = 101
+                    Items["Holder"].Instance.ScrollBarThickness = IsMobile and 3 or 6
 
                     RenderStepped = RunService.RenderStepped:Connect(function()
+                        local DropdownHeight = Library:GetDropdownHeight(Dropdown, Data.MaxSize)
                         Items["OptionHolder"].Instance.Position = UDim2New(0, Items["RealDropdown"].Instance.AbsolutePosition.X, 0, Items["RealDropdown"].Instance.AbsolutePosition.Y + 30)
-                        Items["OptionHolder"].Instance.Size = UDim2New(0, Items["RealDropdown"].Instance.AbsoluteSize.X, 0, Data.MaxSize or 165)
+                        Items["OptionHolder"].Instance.Size = UDim2New(0, Items["RealDropdown"].Instance.AbsoluteSize.X, 0, DropdownHeight)
                     end)
 
                     for Index, Value in Library.OpenFrames do 
@@ -2211,7 +2228,7 @@ do -- Library
                         continue
                     end
 
-                    Value.ZIndex = Bool and 10 or 0
+                    Value.ZIndex = Bool and 102 or 0
 
                     if type(TransparencyProperty) == "table" then 
                         for _, Property in TransparencyProperty do 
@@ -6040,6 +6057,11 @@ do -- Library
             local KeybindList = { }
             self.KeyList = KeybindList
 
+            local ContentLayout
+            local ListPadding
+            local SizeTween
+            local SyncKeybindListSize
+
             local Items = { } do
                 Items["KeybindsList"] = Instances:Create("Frame", {
                     Parent = Library.Holder.Instance,
@@ -6047,9 +6069,9 @@ do -- Library
                     BorderColor3 = FromRGB(0, 0, 0),
                     AnchorPoint = Vector2New(0, 0.5),
                     Position = UDim2New(0, 15, 0.5, 85),
-                    Size = UDim2New(0, 100, 0, 100),
+                    Size = UDim2New(0, 120, 0, 52),
                     BorderSizePixel = 0,
-                    AutomaticSize = Enum.AutomaticSize.XY,
+                    ClipsDescendants = true,
                     BackgroundColor3 = FromRGB(16, 18, 21)
                 })  Items["KeybindsList"]:AddToTheme({BackgroundColor3 = "Background"})
 
@@ -6100,7 +6122,7 @@ do -- Library
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 })  Items["Text"]:AddToTheme({TextColor3 = "Text"})
 
-                Instances:Create("UIPadding", {
+                ListPadding = Instances:Create("UIPadding", {
                     Parent = Items["KeybindsList"].Instance,
                     Name = "\0",
                     PaddingTop = UDimNew(0, 8),
@@ -6120,12 +6142,53 @@ do -- Library
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 })
 
-                Instances:Create("UIListLayout", {
+                ContentLayout = Instances:Create("UIListLayout", {
                     Parent = Items["Content"].Instance,
                     Name = "\0",
+                    Padding = UDimNew(0, 2),
                     SortOrder = Enum.SortOrder.LayoutOrder
                 })
             end
+
+            SyncKeybindListSize = function(Animate)
+                if not ContentLayout or not ListPadding then
+                    return
+                end
+
+                local ContentSize = ContentLayout.Instance.AbsoluteContentSize
+                local PadX = ListPadding.Instance.PaddingLeft.Offset + ListPadding.Instance.PaddingRight.Offset
+                local PadY = ListPadding.Instance.PaddingTop.Offset + ListPadding.Instance.PaddingBottom.Offset
+                local HeaderWidth = Items["Text"].Instance.TextBounds.X + 30
+                local TargetWidth = MathMax(ContentSize.X + PadX, HeaderWidth + PadX, 120)
+                local TargetHeight = MathMax(28 + ContentSize.Y + PadY, 52)
+                local TargetSize = UDim2New(0, TargetWidth, 0, TargetHeight)
+
+                if SizeTween and SizeTween.Tween then
+                    SizeTween.Tween:Cancel()
+                    SizeTween = nil
+                end
+
+                if Animate then
+                    SizeTween = Items["KeybindsList"]:Tween(
+                        TweenInfo.new(0.22, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+                        {Size = TargetSize}
+                    )
+                else
+                    Items["KeybindsList"].Instance.Size = TargetSize
+                end
+            end
+
+            Library:Connect(ContentLayout.Instance:GetPropertyChangedSignal("AbsoluteContentSize"), function()
+                SyncKeybindListSize(true)
+            end)
+
+            Library:Connect(Items["Text"].Instance:GetPropertyChangedSignal("TextBounds"), function()
+                SyncKeybindListSize(true)
+            end)
+
+            task.defer(function()
+                SyncKeybindListSize(false)
+            end)
 
             function KeybindList:Add(Key, Name)
                 local Row = Instances:Create("Frame", {
@@ -6183,6 +6246,7 @@ do -- Library
 
                 function Row:SetText(Key, Name)
                     NewKey.Instance.Text = "(" .. Key .. ") - ".. Name .. ""
+                    SyncKeybindListSize(true)
                 end
 
                 function Row:SetStatus(Status)
@@ -6206,6 +6270,10 @@ do -- Library
                         NewKeyStatus:Tween(nil, {TextTransparency = 0.5})
                     end
                 end
+
+                task.defer(function()
+                    SyncKeybindListSize(true)
+                end)
 
                 return Row
             end
@@ -7342,7 +7410,7 @@ do -- Library
                 Items["PlayerlistInline"] = Instances:Create("Frame", {
                     Parent = Items["Playerlist"].Instance,
                     Name = "\0",
-                    Size = UDim2New(1, -16, 1, -90),
+                    Size = UDim2New(1, -16, 1, -96),
                     Position = UDim2New(0, 8, 0, 8),
                     BorderColor3 = FromRGB(0, 0, 0),
                     ZIndex = 2,
@@ -7392,14 +7460,57 @@ do -- Library
                     PaddingLeft = UDimNew(0, 4)
                 })
 
-                Items["PlayerAvatar"] = Instances:Create("ImageLabel", {
+                Items["PlayerFooter"] = Instances:Create("Frame", {
                     Parent = Items["Playerlist"].Instance,
                     Name = "\0",
+                    AnchorPoint = Vector2New(0, 1),
+                    Position = UDim2New(0, 0, 1, 0),
+                    Size = UDim2New(1, 0, 0, 84),
+                    BorderSizePixel = 0,
+                    ZIndex = 2,
+                    BackgroundTransparency = 1,
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                })
+
+                Instances:Create("UIPadding", {
+                    Parent = Items["PlayerFooter"].Instance,
+                    Name = "\0",
+                    PaddingTop = UDimNew(0, 8),
+                    PaddingBottom = UDimNew(0, 8),
+                    PaddingRight = UDimNew(0, 8),
+                    PaddingLeft = UDimNew(0, 8)
+                })
+
+                Items["PlayerFooterLeft"] = Instances:Create("Frame", {
+                    Parent = Items["PlayerFooter"].Instance,
+                    Name = "\0",
+                    AnchorPoint = Vector2New(0, 0.5),
+                    Position = UDim2New(0, 8, 0.5, 0),
+                    BackgroundTransparency = 1,
+                    BorderSizePixel = 0,
+                    Size = UDim2New(1, -259, 0, 68),
+                    ZIndex = 2,
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                })
+
+                Instances:Create("UIListLayout", {
+                    Parent = Items["PlayerFooterLeft"].Instance,
+                    Name = "\0",
+                    FillDirection = Enum.FillDirection.Horizontal,
+                    VerticalAlignment = Enum.VerticalAlignment.Center,
+                    Padding = UDimNew(0, 10),
+                    SortOrder = Enum.SortOrder.LayoutOrder
+                })
+
+                Items["PlayerAvatar"] = Instances:Create("ImageLabel", {
+                    Parent = Items["PlayerFooterLeft"].Instance,
+                    Name = "\0",
+                    LayoutOrder = 1,
                     BorderColor3 = FromRGB(0, 0, 0),
                     Size = UDim2New(0, 50, 0, 50),
-                    AnchorPoint = Vector2New(0, 1),
                     Image = "rbxasset://textures/ui/GuiImagePlaceholder.png",
-                    Position = UDim2New(0, 8, 1, -15),
                     ZIndex = 2,
                     BorderSizePixel = 0,
                     BackgroundColor3 = FromRGB(16, 18, 21)
@@ -7411,17 +7522,38 @@ do -- Library
                     CornerRadius = UDimNew(0, 5)
                 })
 
-                Items["PlayerUsername"] = Instances:Create("TextLabel", {
-                    Parent = Items["Playerlist"].Instance,
+                Items["PlayerInfo"] = Instances:Create("Frame", {
+                    Parent = Items["PlayerFooterLeft"].Instance,
                     Name = "\0",
+                    LayoutOrder = 2,
+                    BackgroundTransparency = 1,
+                    BorderSizePixel = 0,
+                    Size = UDim2New(1, -60, 0, 0),
+                    AutomaticSize = Enum.AutomaticSize.Y,
+                    ZIndex = 2,
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                })
+
+                Instances:Create("UIListLayout", {
+                    Parent = Items["PlayerInfo"].Instance,
+                    Name = "\0",
+                    Padding = UDimNew(0, 3),
+                    SortOrder = Enum.SortOrder.LayoutOrder
+                })
+
+                Items["PlayerUsername"] = Instances:Create("TextLabel", {
+                    Parent = Items["PlayerInfo"].Instance,
+                    Name = "\0",
+                    LayoutOrder = 1,
                     FontFace = Library.Font,
                     TextColor3 = FromRGB(255, 255, 255),
                     BorderColor3 = FromRGB(0, 0, 0),
                     Text = "?",
-                    AutomaticSize = Enum.AutomaticSize.X,
-                    Size = UDim2New(0, 0, 0, 15),
+                    Size = UDim2New(1, 0, 0, 16),
                     BackgroundTransparency = 1,
-                    Position = UDim2New(0, 65, 1, -65),
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    TextTruncate = Enum.TextTruncate.AtEnd,
                     BorderSizePixel = 0,
                     ZIndex = 2,
                     TextSize = 14,
@@ -7429,36 +7561,40 @@ do -- Library
                 })  Items["PlayerUsername"]:AddToTheme({TextColor3 = "Text"})
 
                 Items["PlayerUserID"] = Instances:Create("TextLabel", {
-                    Parent = Items["Playerlist"].Instance,
+                    Parent = Items["PlayerInfo"].Instance,
                     Name = "\0",
+                    LayoutOrder = 2,
                     FontFace = Library.Font,
                     TextColor3 = FromRGB(255, 255, 255),
+                    TextTransparency = 0.35,
                     BorderColor3 = FromRGB(0, 0, 0),
                     Text = "?",
-                    AutomaticSize = Enum.AutomaticSize.X,
-                    Size = UDim2New(0, 0, 0, 15),
+                    AutomaticSize = Enum.AutomaticSize.XY,
+                    Size = UDim2New(0, 0, 0, 0),
                     BackgroundTransparency = 1,
-                    Position = UDim2New(0, 65, 1, -50),
+                    TextXAlignment = Enum.TextXAlignment.Left,
                     BorderSizePixel = 0,
                     ZIndex = 2,
-                    TextSize = 14,
+                    TextSize = 13,
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 })  Items["PlayerUserID"]:AddToTheme({TextColor3 = "Text"})
 
                 Items["PlayerAccountAge"] = Instances:Create("TextLabel", {
-                    Parent = Items["Playerlist"].Instance,
+                    Parent = Items["PlayerInfo"].Instance,
                     Name = "\0",
+                    LayoutOrder = 3,
                     FontFace = Library.Font,
                     TextColor3 = FromRGB(255, 255, 255),
+                    TextTransparency = 0.35,
                     BorderColor3 = FromRGB(0, 0, 0),
                     Text = "?",
-                    AutomaticSize = Enum.AutomaticSize.X,
-                    Size = UDim2New(0, 0, 0, 15),
+                    AutomaticSize = Enum.AutomaticSize.XY,
+                    Size = UDim2New(0, 0, 0, 0),
                     BackgroundTransparency = 1,
-                    Position = UDim2New(0, 65, 1, -35),
+                    TextXAlignment = Enum.TextXAlignment.Left,
                     BorderSizePixel = 0,
                     ZIndex = 2,
-                    TextSize = 14,
+                    TextSize = 13,
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 })  Items["PlayerAccountAge"]:AddToTheme({TextColor3 = "Text"})
             end
@@ -7466,12 +7602,12 @@ do -- Library
             do
                 local DropdownItems = { } do
                     DropdownItems["Dropdown"] = Instances:Create("Frame", {
-                        Parent = Items["Playerlist"].Instance,
+                        Parent = Items["PlayerFooter"].Instance,
                         Name = "\0",
                         BackgroundTransparency = 1,
-                        AnchorPoint = Vector2New(1, 1),
+                        AnchorPoint = Vector2New(1, 0.5),
+                        Position = UDim2New(1, -8, 0.5, 0),
                         Size = UDim2New(0, 235, 0, 47),
-                        Position = UDim2New(1, -8, 1, -20),
                         BorderColor3 = FromRGB(0, 0, 0),
                         ZIndex = 2,
                         BorderSizePixel = 0,
@@ -8712,7 +8848,7 @@ do -- Library
                 Items = Data.Items or Data.items or { "One", "Two", "Three" },
                 Callback = Data.Callback or Data.callback or function() end,
                 Multi = Data.Multi or Data.multi or false,
-                MaxSize = Data.MaxSize or Data.maxsize or 85,
+                MaxSize = Data.MaxSize or Data.maxsize or (IsMobile and 165 or 300),
                 Tooltip = Data.Tooltip or Data.tooltip or nil
             }
 
@@ -8726,7 +8862,7 @@ do -- Library
                 Items = Dropdown.Items,
                 Default = Dropdown.Default,
                 Multi = Dropdown.Multi,
-                MaxSize = Dropdown.MaxSize or 65
+                MaxSize = Dropdown.MaxSize
             })  
 
             DropdownItems["Dropdown"]:Tooltip(Dropdown.Tooltip)
