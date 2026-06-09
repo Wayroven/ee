@@ -1531,7 +1531,7 @@ do -- Library
                     BorderColor3 = FromRGB(0, 0, 0),
                     AnchorPoint = Vector2New(1, 0),
                     BackgroundTransparency = 1,
-                    Position = UDim2New(1, -52, 0, 0),
+                    Position = UDim2New(1, -10, 0, 0),
                     Size = UDim2New(0, 0, 1, 0),
                     BorderSizePixel = 0,
                     AutomaticSize = Enum.AutomaticSize.X,
@@ -1544,7 +1544,7 @@ do -- Library
                     VerticalAlignment = Enum.VerticalAlignment.Center,
                     FillDirection = Enum.FillDirection.Horizontal,
                     HorizontalAlignment = Enum.HorizontalAlignment.Right,
-                    Padding = UDimNew(0, 10),
+                    Padding = UDimNew(0, 15),
                     SortOrder = Enum.SortOrder.LayoutOrder
                 })
             end
@@ -6307,6 +6307,22 @@ do -- Library
                     BorderSizePixel = 0,
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 })  Items["Logo"]:AddToTheme({ImageColor3 = "Accent"})
+
+                Items["LogoGlow"] = Instances:Create("ImageLabel", {
+                    Parent = Items["Logo"].Instance,
+                    Name = "\0",
+                    ImageColor3 = FromRGB(142, 91, 218),
+                    ScaleType = Enum.ScaleType.Slice,
+                    ImageTransparency = 0.3,
+                    AnchorPoint = Vector2New(0.5, 0.5),
+                    Position = UDim2New(0.5, 0, 0.5, 0),
+                    Size = UDim2New(1, 16, 1, 16),
+                    Image = "http://www.roblox.com/asset/?id=18245826428",
+                    BackgroundTransparency = 1,
+                    ZIndex = 3,
+                    BorderSizePixel = 0,
+                    SliceCenter = RectNew(Vector2New(21, 21), Vector2New(79, 79))
+                })  Items["LogoGlow"]:AddToTheme({ImageColor3 = "Accent"})
 
                 Items["Holder"] = Instances:Create("Frame", {
                     Parent = Items["Pages"].Instance,
