@@ -9474,21 +9474,6 @@ do -- Library
         end
     end
 end
-getgenv().Library = Library
-return Library
-B(52, 255, 164)
-                })
-            else
-                Library:Notification({
-                    Name = "Error!",
-                    Description = "Failed to load autoload theme, error:\n" .. Result,
-                    Duration = 5,
-                    Icon = "97118059177470",
-                    IconColor = Color3.fromRGB(255, 120, 120)
-                })
-            end
-        end
-    end
-end
+
 getgenv().Library = Library
 return Library
