@@ -110,7 +110,7 @@ do -- Library
     local RectNew = Rect.new
 
     local ESPFonts = {
-        ["Verdana"] = Font.fromEnum(Enum.Font.Verdana)
+        ["Verdana"] = Font.fromEnum(Enum.Font.SourceSans)
     }
 
     local IsMobile = UserInputService.TouchEnabled and (not UserInputService.KeyboardEnabled) or false
