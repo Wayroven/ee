@@ -6262,7 +6262,7 @@ do -- Library
                 Items["Profile"] = Instances:Create("ImageLabel", {
                     Parent = Items["Pages"].Instance,
                     Name = "\0",
-                    Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.AvatarHeadShot, Enum.ThumbnailSize.Size420x420),
+                    Image = "rbxthumb://type=AvatarHeadShot&id="..Players.LocalPlayer.UserId.."&w=420&h=420",
                     BackgroundTransparency = 1,
                     Position = UDim2New(0, 11, 1, -50),
                     Size = UDim2New(0, 40, 0, 40),
@@ -8071,7 +8071,7 @@ do -- Library
 
                         PlayerData:Toggle("Active")
 
-                        local PlayerAvatar = Players:GetUserThumbnailAsync(Playerlist.Player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+                        local PlayerAvatar = "rbxthumb://type=AvatarHeadShot&id=" .. Players.LocalPlayer.UserId .. "&w=420&h=420"
                         Items["PlayerAvatar"].Instance.Image = PlayerAvatar
                         Items["PlayerUsername"].Instance.Text = Playerlist.Player.DisplayName .. " (@" .. Playerlist.Player.Name .. ")"
                         Items["PlayerUserID"].Instance.Text = tostring(Playerlist.Player.UserId)
