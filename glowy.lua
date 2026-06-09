@@ -803,7 +803,7 @@ do -- Library
             ["Dark Gradient"] = FromRGB(211, 211, 211),
             ["Inactive Text"] = FromRGB(105, 105, 110),
             ["Element"] = FromRGB(29, 33, 34),
-            ["Accent"] = FromRGB(0, 255, 255),
+            ["Accent"] = FromRGB(0, 155, 255),
             ["Panel Transparency"] = 0.04,
             ["Border"] = FromRGB(34, 35, 37)
         },
@@ -1340,6 +1340,30 @@ do -- Library
         return FromHSV(Hue, Saturation, Value * Increment)
     end)
 
+    Library.GetAccentGradient = LPH_NO_VIRTUALIZE(function(self)
+        local Accent = self.Theme.Accent
+
+        if typeof(Accent) ~= "Color3" then
+            Accent = FromRGB(0, 155, 255)
+        end
+
+        local Hue, Saturation, Brightness = Accent:ToHSV()
+
+        local function Shift(HueShift, SaturationMultiplier, BrightnessMultiplier)
+            return FromHSV((Hue + HueShift) % 1, MathClamp(Saturation * SaturationMultiplier, 0, 1), MathClamp(Brightness * BrightnessMultiplier, 0, 1))
+        end
+
+        return RGBSequence{
+            RGBSequenceKeypoint(0, Shift(-0.055, 0.76, 1.24)),
+            RGBSequenceKeypoint(0.15, Shift(-0.028, 0.92, 1.14)),
+            RGBSequenceKeypoint(0.32, Shift(0, 1, 1)),
+            RGBSequenceKeypoint(0.5, Shift(0.035, 0.98, 1.05)),
+            RGBSequenceKeypoint(0.68, Shift(0.075, 0.92, 1.1)),
+            RGBSequenceKeypoint(0.84, Shift(-0.02, 0.82, 1.18)),
+            RGBSequenceKeypoint(1, Shift(0.12, 1, 0.86))
+        }
+    end)
+
     local Components = { } do
         Components.Toggle = function(Data)
             local Toggle = { 
@@ -1416,6 +1440,16 @@ do -- Library
                     ApplyStrokeMode = Enum.ApplyStrokeMode.Border
                 }):AddToTheme({Color = "Border"})
 
+                Items["IndicatorGradient"] = Instances:Create("UIGradient", {
+                    Parent = Items["Indicator"].Instance,
+                    Name = "\0",
+                    Enabled = false,
+                    Rotation = 18,
+                    Color = Library:GetAccentGradient()
+                })  Items["IndicatorGradient"]:AddToTheme({Color = function()
+                    return Library:GetAccentGradient()
+                end})
+
                 Items["ToggleGlow"] = Instances:Create("ImageLabel", {
                     Parent = Items["Indicator"].Instance,
                     Name = "\0",
@@ -1431,6 +1465,15 @@ do -- Library
                     BorderSizePixel = 0,
                     SliceCenter = RectNew(Vector2New(21, 21), Vector2New(79, 79))
                 })  Items["ToggleGlow"]:AddToTheme({ImageColor3 = "Accent"})
+
+                Instances:Create("UIGradient", {
+                    Parent = Items["ToggleGlow"].Instance,
+                    Name = "\0",
+                    Rotation = 28,
+                    Color = Library:GetAccentGradient()
+                }):AddToTheme({Color = function()
+                    return Library:GetAccentGradient()
+                end})
 
                 Items["Inline"] = Instances:Create("Frame", {
                     Parent = Items["Indicator"].Instance,
@@ -1511,11 +1554,13 @@ do -- Library
                 Library.Flags[Toggle.Flag] = Bool
 
                 if Bool then
+                    Items["IndicatorGradient"].Instance.Enabled = true
                     Items["Indicator"]:Tween(nil, {BackgroundColor3 = Library.Theme.Accent})
                     Items["Inline"]:Tween(nil, {Position = UDim2New(0, 22, 0.5, 0)})
                     Items["ToggleGlow"]:Tween(nil, {ImageTransparency = 0.45})
                     Items["Text"]:Tween(nil, {TextTransparency = 0})
                 else
+                    Items["IndicatorGradient"].Instance.Enabled = false
                     Items["Indicator"]:ChangeItemTheme({BackgroundColor3 = "Element"})
                     Items["Indicator"]:Tween(nil, {BackgroundColor3 = Library.Theme.Element})
                     Items["Inline"]:Tween(nil, {Position = UDim2New(0, 2, 0.5, 0)})
@@ -6704,6 +6749,15 @@ do -- Library
                     BackgroundColor3 = FromRGB(142, 91, 218)
                 })  Items["PageLine"]:AddToTheme({BackgroundColor3 = "Accent"})
 
+                Instances:Create("UIGradient", {
+                    Parent = Items["PageLine"].Instance,
+                    Name = "\0",
+                    Rotation = 90,
+                    Color = Library:GetAccentGradient()
+                }):AddToTheme({Color = function()
+                    return Library:GetAccentGradient()
+                end})
+
                 Items["PageGlow"] = Instances:Create("ImageLabel", {
                     Parent = Items["Inactive"].Instance,
                     Name = "\0",
@@ -6719,6 +6773,15 @@ do -- Library
                     BorderSizePixel = 0,
                     SliceCenter = RectNew(Vector2New(21, 21), Vector2New(79, 79))
                 })  Items["PageGlow"]:AddToTheme({ImageColor3 = "Accent"})
+
+                Instances:Create("UIGradient", {
+                    Parent = Items["PageGlow"].Instance,
+                    Name = "\0",
+                    Rotation = 30,
+                    Color = Library:GetAccentGradient()
+                }):AddToTheme({Color = function()
+                    return Library:GetAccentGradient()
+                end})
 
                 Items["Icon"] = Instances:Create("ImageLabel", {
                     Parent = Items["Inactive"].Instance,
@@ -7065,6 +7128,15 @@ do -- Library
                     SliceCenter = RectNew(Vector2New(21, 21), Vector2New(79, 79))
                 })  Items["Glow"]:AddToTheme({ImageColor3 = "Accent"})
 
+                Instances:Create("UIGradient", {
+                    Parent = Items["Glow"].Instance,
+                    Name = "\0",
+                    Rotation = 25,
+                    Color = Library:GetAccentGradient()
+                }):AddToTheme({Color = function()
+                    return Library:GetAccentGradient()
+                end})
+
                 Items["Inactive"].Instance.Size = UDim2New(0, Items["Text"].Instance.TextBounds.X + 28, 0, 26)
 
                 Items["Line"] = Instances:Create("Frame", {
@@ -7077,6 +7149,15 @@ do -- Library
                     BackgroundTransparency = 1,
                     BackgroundColor3 = FromRGB(142, 91, 218)
                 })  Items["Line"]:AddToTheme({BackgroundColor3 = "Accent"})
+
+                Instances:Create("UIGradient", {
+                    Parent = Items["Line"].Instance,
+                    Name = "\0",
+                    Rotation = 0,
+                    Color = Library:GetAccentGradient()
+                }):AddToTheme({Color = function()
+                    return Library:GetAccentGradient()
+                end})
 
                 local TextRef = Items["Text"]
                 local LineRef = Items["Line"]
@@ -8075,6 +8156,15 @@ do -- Library
                     CornerRadius = UDimNew(1, 0)
                 })
 
+                Instances:Create("UIGradient", {
+                    Parent = Items["AccentLine"].Instance,
+                    Name = "\0",
+                    Rotation = 0,
+                    Color = Library:GetAccentGradient()
+                }):AddToTheme({Color = function()
+                    return Library:GetAccentGradient()
+                end})
+
                 Items["LineGlow"] = Instances:Create("Frame", {
                     Parent = Items["Section"].Instance,
                     Name = "\0",
@@ -8097,8 +8187,11 @@ do -- Library
                     Parent = Items["LineGlow"].Instance,
                     Name = "\0",
                     Rotation = 90,
+                    Color = Library:GetAccentGradient(),
                     Transparency = NumSequence{NumSequenceKeypoint(0, 1), NumSequenceKeypoint(0.5, 0.5), NumSequenceKeypoint(1, 1)}
-                })
+                }):AddToTheme({Color = function()
+                    return Library:GetAccentGradient()
+                end})
 
                 Items["Topbar"] = Instances:Create("Frame", {
                     Parent = Items["Section"].Instance,
@@ -8376,6 +8469,16 @@ do -- Library
                     Name = "\0",
                     CornerRadius = UDimNew(1, 0)
                 })
+
+                Items["KnobGradient"] = Instances:Create("UIGradient", {
+                    Parent = Items["Knob"].Instance,
+                    Name = "\0",
+                    Enabled = false,
+                    Rotation = 18,
+                    Color = Library:GetAccentGradient()
+                })  Items["KnobGradient"]:AddToTheme({Color = function()
+                    return Library:GetAccentGradient()
+                end})
             end
 
             function Switch:Get()
@@ -8387,9 +8490,11 @@ do -- Library
                 Library.Flags[Switch.Flag] = Bool
 
                 if Bool then
+                    Items["KnobGradient"].Instance.Enabled = true
                     Items["Knob"]:Tween(nil, {Position = UDim2New(1, -16, 0.5, 0), BackgroundColor3 = Library.Theme.Accent})
                     Items["Text"]:Tween(nil, {TextTransparency = 0})
                 else
+                    Items["KnobGradient"].Instance.Enabled = false
                     Items["Knob"]:Tween(nil, {Position = UDim2New(0, 2, 0.5, 0), BackgroundColor3 = FromRGB(150, 150, 158)})
                     Items["Text"]:Tween(nil, {TextTransparency = 0.5})
                 end
@@ -8651,9 +8756,9 @@ do -- Library
                     Parent = Items["Accent"].Instance,
                     Name = "\0",
                     Rotation = 84,
-                    Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(211, 211, 211))}
+                    Color = Library:GetAccentGradient()
                 }):AddToTheme({Color = function()
-                    return RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, Library.Theme["Dark Gradient"])}
+                    return Library:GetAccentGradient()
                 end})
 
                 Items["Knob"] = Instances:Create("Frame", {
@@ -8688,6 +8793,15 @@ do -- Library
                     BorderSizePixel = 0,
                     SliceCenter = RectNew(Vector2New(21, 21), Vector2New(79, 79))
                 })  Items["KnobGlow"]:AddToTheme({ImageColor3 = "Accent"})
+
+                Instances:Create("UIGradient", {
+                    Parent = Items["KnobGlow"].Instance,
+                    Name = "\0",
+                    Rotation = 28,
+                    Color = Library:GetAccentGradient()
+                }):AddToTheme({Color = function()
+                    return Library:GetAccentGradient()
+                end})
 
                 Items["Value"] = Instances:Create("TextLabel", {
                     Parent = Items["Slider"].Instance,
