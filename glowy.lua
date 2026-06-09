@@ -131,10 +131,10 @@ do -- Library
         },
 
         Folders = {
-            Directory = "midnightanalsex",
-            Configs = "midnightanalsex/Configs",
-            Assets = "midnightanalsex/Assets",
-            Themes = "midnightanalsex/Themes"
+            Directory = "zzzzui",
+            Configs = "zzzzui/Configs",
+            Assets = "zzzzui/Assets",
+            Themes = "zzzzui/Themes"
         },
 
         Images = { -- you're welcome to reupload the images and replace it with your own links
@@ -975,8 +975,14 @@ do -- Library
     end
 
     Library.Round = function(self, Number, Float)
-        local Multiplier = 1 / (Float or 1)
-        return MathFloor(Number * Multiplier) / Multiplier
+        Float = Float or 1
+
+        if Float == 0 then
+            return MathFloor(Number + 0.5)
+        end
+
+        local Multiplier = 1 / Float
+        return MathFloor(Number * Multiplier + 0.5) / Multiplier
     end
 
     Library.Thread = function(self, Function)
@@ -1000,7 +1006,7 @@ do -- Library
 
             if not Success then
                 Library:Notification({
-                    Name = "midnight | Error",
+                    Name = "zzzzui | Error",
                     Description = "Error caught, please report it in the discord.\n"..Result,
                     Duration = 10,
                 })
@@ -1222,13 +1228,13 @@ do -- Library
 
         if Theme == "Accent" and Window then
             Window:SetText(string.format(
-                '<font color="rgb(255,255,255)">mid</font><font color="rgb(%d,%d,%d)">night</font>',
+                '<font color="rgb(255,255,255)">zzzz</font><font color="rgb(%d,%d,%d)">ui</font>',
                 Color.R*255,
                 Color.G*255,
                 Color.B*255
             ))
 
-            Watermark:SetText(string.format('<font color="rgb(255,255,255)">mid</font><font color="rgb(%d,%d,%d)">night</font> - %s', Color.R*255, Color.G*255, Color.B*255, os.date("%b. %d %Y, %X")))
+            Watermark:SetText(string.format('<font color="rgb(255,255,255)">zzzz</font><font color="rgb(%d,%d,%d)">ui</font> - %s', Color.R*255, Color.G*255, Color.B*255, os.date("%b. %d %Y, %X")))
         end
 
         for _, Item in self.ThemeItems do
@@ -1368,6 +1374,57 @@ do -- Library
         }
     end)
 
+    Library.CountItems = LPH_NO_VIRTUALIZE(function(self, List)
+        local Count = 0
+
+        for _ in List do
+            Count = Count + 1
+        end
+
+        return Count
+    end)
+
+    Library.GetDropdownHeight = LPH_NO_VIRTUALIZE(function(self, Options, MaxSize, HasSearch)
+        local Count = self:CountItems(Options)
+        local Padding = HasSearch and 58 or 18
+        local Minimum = HasSearch and 105 or 54
+        local Maximum = MaxSize or (HasSearch and 230 or 125)
+        local Height = (Count * 27) + Padding
+
+        return MathClamp(Height, Minimum, Maximum)
+    end)
+
+    Library.CreateSelectedCircle = function(self, Parent, ZIndex)
+        local Circle = Instances:Create("Frame", {
+            Parent = Parent.Instance or Parent,
+            Name = "\0",
+            AnchorPoint = Vector2New(0.5, 0.5),
+            Position = UDim2New(0, 13, 0.5, 0),
+            Size = UDim2New(0, 10, 0, 10),
+            BorderSizePixel = 0,
+            BackgroundTransparency = 1,
+            ZIndex = ZIndex or 5,
+            BackgroundColor3 = self.Theme.Accent
+        })  Circle:AddToTheme({BackgroundColor3 = "Accent"})
+
+        Instances:Create("UICorner", {
+            Parent = Circle.Instance,
+            Name = "\0",
+            CornerRadius = UDimNew(1, 0)
+        })
+
+        Instances:Create("UIGradient", {
+            Parent = Circle.Instance,
+            Name = "\0",
+            Rotation = 28,
+            Color = self:GetAccentGradient()
+        }):AddToTheme({Color = function()
+            return self:GetAccentGradient()
+        end})
+
+        return Circle
+    end)
+
     local Components = { } do
         Components.Toggle = function(Data)
             local Toggle = { 
@@ -1401,8 +1458,8 @@ do -- Library
                     TextColor3 = Color,
                     TextTransparency = 0.5,
                     Text = Data.Name,
-                    AutomaticSize = Enum.AutomaticSize.X,
-                    Size = UDim2New(0, 0, 0, 15),
+                    TextTruncate = Enum.TextTruncate.AtEnd,
+                    Size = UDim2New(1, -118, 0, 15),
                     AnchorPoint = Vector2New(0, 0.5),
                     BorderSizePixel = 0,
                     BackgroundTransparency = 1,
@@ -1498,13 +1555,14 @@ do -- Library
                     CornerRadius = UDimNew(1, 0)
                 })
 
-                Instances:Create("UIGradient", {
+                Items["InlineGradient"] = Instances:Create("UIGradient", {
                     Parent = Items["Inline"].Instance,
                     Name = "\0",
-                    Rotation = 84,
-                    Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(211, 211, 211))}
-                }):AddToTheme({Color = function()
-                    return RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, Library.Theme["Dark Gradient"])}
+                    Enabled = false,
+                    Rotation = 28,
+                    Color = Library:GetAccentGradient()
+                })  Items["InlineGradient"]:AddToTheme({Color = function()
+                    return Library:GetAccentGradient()
                 end})
 
                 Items["Check"] = Instances:Create("ImageLabel", {
@@ -1531,7 +1589,7 @@ do -- Library
                     BorderColor3 = FromRGB(0, 0, 0),
                     AnchorPoint = Vector2New(1, 0),
                     BackgroundTransparency = 1,
-                    Position = UDim2New(1, -10, 0, 0),
+                    Position = UDim2New(1, -52, 0, 0),
                     Size = UDim2New(0, 0, 1, 0),
                     BorderSizePixel = 0,
                     AutomaticSize = Enum.AutomaticSize.X,
@@ -1559,15 +1617,17 @@ do -- Library
 
                 if Bool then
                     Items["IndicatorGradient"].Instance.Enabled = true
+                    Items["InlineGradient"].Instance.Enabled = true
                     Items["Indicator"]:Tween(nil, {BackgroundColor3 = Library.Theme.Accent})
-                    Items["Inline"]:Tween(nil, {Position = UDim2New(0, 22, 0.5, 0)})
+                    Items["Inline"]:Tween(nil, {Position = UDim2New(0, 22, 0.5, 0), BackgroundColor3 = Library.Theme.Accent})
                     Items["ToggleGlow"]:Tween(nil, {ImageTransparency = 0.45})
                     Items["Text"]:Tween(nil, {TextTransparency = 0})
                 else
                     Items["IndicatorGradient"].Instance.Enabled = false
+                    Items["InlineGradient"].Instance.Enabled = false
                     Items["Indicator"]:ChangeItemTheme({BackgroundColor3 = "Element"})
                     Items["Indicator"]:Tween(nil, {BackgroundColor3 = Library.Theme.Element})
-                    Items["Inline"]:Tween(nil, {Position = UDim2New(0, 2, 0.5, 0)})
+                    Items["Inline"]:Tween(nil, {Position = UDim2New(0, 2, 0.5, 0), BackgroundColor3 = FromRGB(150, 150, 158)})
                     Items["ToggleGlow"]:Tween(nil, {ImageTransparency = 1})
                     Items["Text"]:Tween(nil, {TextTransparency = 0.5})
                 end
@@ -1703,8 +1763,7 @@ do -- Library
                     TextColor3 = FromRGB(255, 255, 255),
                     BorderColor3 = FromRGB(0, 0, 0),
                     Text = "--",
-                    AutomaticSize = Enum.AutomaticSize.X,
-                    Size = UDim2New(0, 0, 0, 15),
+                    Size = UDim2New(1, -40, 0, 15),
                     AnchorPoint = Vector2New(0, 0.5),
                     Position = UDim2New(0, 8, 0.5, 0),
                     BackgroundTransparency = 1,
@@ -1721,11 +1780,11 @@ do -- Library
                     ImageColor3 = FromRGB(196, 231, 255),
                     ScaleType = Enum.ScaleType.Fit,
                     BorderColor3 = FromRGB(0, 0, 0),
-                    Size = UDim2New(0, 20, 0, 20),
+                    Size = UDim2New(0, 14, 0, 14),
                     AnchorPoint = Vector2New(1, 0.5),
-                    Image = "rbxassetid://10734991021",
+                    Image = "rbxassetid://17604118029",
                     BackgroundTransparency = 1,
-                    Position = UDim2New(1, -3, 0.5, 0),
+                    Position = UDim2New(1, -8, 0.5, 0),
                     ZIndex = 2,
                     BorderSizePixel = 0,
                     BackgroundColor3 = FromRGB(255, 255, 255)
@@ -1893,27 +1952,22 @@ do -- Library
                 return Dropdown.Value
             end
 
-            function Dropdown:Set(Option)
-                if Data.Multi then
-                    if type(Option) ~= "table" then
-                        return
-                    end
-
-                    Dropdown.Value = Option
-                    Library.Flags[Dropdown.Flag] = Option
-
-                    for Index, Value in Option do 
-                        local OptionData = Dropdown.Options[Value]
-                        
-                        if not OptionData then 
+                function Dropdown:Set(Option)
+                    if Data.Multi then
+                        if type(Option) ~= "table" then
                             return
                         end
 
-                        OptionData.Selected = true
-                        OptionData:Toggle("Active")
-                    end
+                        Dropdown.Value = Option
+                        Library.Flags[Dropdown.Flag] = Option
 
-                    Items["Value"].Instance.Text = TableConcat(Option, ", ")
+                        for Index, OptionData in Dropdown.Options do
+                            local Selected = TableFind(Option, OptionData.Name) ~= nil
+                            OptionData.Selected = Selected
+                            OptionData:Toggle(Selected and "Active" or "Inactive")
+                        end
+
+                        Items["Value"].Instance.Text = #Option > 0 and TableConcat(Option, ", ") or "--"
                 else
                     if not Dropdown.Options[Option] then 
                         return
@@ -1959,23 +2013,7 @@ do -- Library
                     BackgroundColor3 = FromRGB(16, 18, 21)
                 })  OptionButton:AddToTheme({BackgroundColor3 = "Background"})
 
-                local CheckImage = Instances:Create("ImageLabel", {
-                    Parent = OptionButton.Instance,
-                    Name = "\0",
-                    ImageColor3 = FromRGB(255, 255, 255),
-                    ScaleType = Enum.ScaleType.Fit,
-                    BorderColor3 = FromRGB(0, 0, 0),
-                    Size = UDim2New(0, 10, 0, 10),
-                    Visible = true,
-                    AnchorPoint = Vector2New(0.5, 0.5),
-                    Image = "rbxassetid://17604118029",
-                    BackgroundTransparency = 1,
-                    Position = UDim2New(0, 10, 0.5, 0),
-                    ImageTransparency = 1,
-                    ZIndex = 5,
-                    BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(255, 255, 255)
-                })  CheckImage:AddToTheme({ImageColor3 = "Accent"})
+                local CheckImage = Library:CreateSelectedCircle(OptionButton, 5)
 
                 Instances:Create("UICorner", {
                     Parent = OptionButton.Instance,
@@ -2023,19 +2061,18 @@ do -- Library
                     if Status == "Active" then 
                         OptionData.Button:Tween(nil, {BackgroundTransparency = 0})
                         OptionData.Text:Tween(nil, {TextTransparency = 0, Position = UDim2New(0, 27, 0.5, 0)})
-                        OptionData.Check:Tween(nil, {ImageTransparency = 0})
+                        OptionData.Check:Tween(nil, {BackgroundTransparency = 0})
                     elseif Status == "Inactive" then
                         OptionData.Button:Tween(nil, {BackgroundTransparency = 1})
                         OptionData.Text:Tween(nil, {TextTransparency = 0.5, Position = UDim2New(0, 7, 0.5, 0)})
-                        OptionData.Check:Tween(nil, {ImageTransparency = 1})
+                        OptionData.Check:Tween(nil, {BackgroundTransparency = 1})
                     end
                 end
 
                 function OptionData:Set()
-                    OptionData.Selected = not OptionData.Selected
-
                     if Data.Multi then 
                         local Index = TableFind(Dropdown.Value, OptionData.Name)
+                        OptionData.Selected = Index == nil
 
                         if Index then 
                             TableRemove(Dropdown.Value, Index)
@@ -2051,27 +2088,20 @@ do -- Library
 
                         Items["Value"].Instance.Text = TextFormat
                     else
-                        if OptionData.Selected then 
-                            Dropdown.Value = OptionData.Name
-                            Library.Flags[Dropdown.Flag] = OptionData.Name
+                        Dropdown.Value = OptionData.Name
+                        Library.Flags[Dropdown.Flag] = OptionData.Name
 
-                            OptionData:Toggle("Active")
-
-                            for Index, Value in Dropdown.Options do 
-                                if Value ~= OptionData then
-                                    Value.Selected = false 
-                                    Value:Toggle("Inactive")
-                                end
+                        for Index, Value in Dropdown.Options do 
+                            if Value ~= OptionData then
+                                Value.Selected = false 
+                                Value:Toggle("Inactive")
+                            else
+                                Value.Selected = true 
+                                Value:Toggle("Active")
                             end
-
-                            Items["Value"].Instance.Text = OptionData.Name 
-                        else
-                            Dropdown.Value = nil
-                            Library.Flags[Dropdown.Flag] = nil
-
-                            OptionData:Toggle("Inactive")
-                            Items["Value"].Instance.Text = "--"
                         end
+
+                        Items["Value"].Instance.Text = OptionData.Name 
                     end
 
                     if Data.Callback then 
@@ -3408,7 +3438,7 @@ do -- Library
                     AnchorPoint = Vector2New(1, 0.5),
                     Size = UDim2New(0, 0, 0, 15),
                     BackgroundTransparency = 1,
-                    Position = UDim2New(1, Data.IsToggle and -44 or 0, 0.5, 0),
+                    Position = UDim2New(1, Data.IsToggle and -70 or 0, 0.5, 0),
                     BorderColor3 = FromRGB(0, 0, 0),
                     ZIndex = 2,
                     TextSize = 14,
