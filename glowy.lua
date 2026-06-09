@@ -1975,7 +1975,7 @@ do -- Library
                     ZIndex = 5,
                     BorderSizePixel = 0,
                     BackgroundColor3 = FromRGB(255, 255, 255)
-                })  CheckImage:AddToTheme({ImageColor3 = "Accent"})  CheckImage:AddToTheme({ImageColor3 = "Accent"})
+                })  CheckImage:AddToTheme({ImageColor3 = "Accent"})
 
                 Instances:Create("UICorner", {
                     Parent = OptionButton.Instance,
@@ -6081,14 +6081,31 @@ do -- Library
             end
 
             function KeybindList:Add(Key, Name)
-                local NewKey = Instances:Create("TextLabel", {
+                local NewKeyContainer = Instances:Create("Frame", {
                     Parent = Items["Content"].Instance,
+                    Name = "\0",
+                    BackgroundTransparency = 1,
+                    BorderSizePixel = 0,
+                    Size = UDim2New(1, 0, 0, 20),
+                    AutomaticSize = Enum.AutomaticSize.XY,
+                })
+
+                Instances:Create("UIListLayout", {
+                    Parent = NewKeyContainer.Instance,
+                    FillDirection = Enum.FillDirection.Horizontal,
+                    Padding = UDimNew(0, 15),
+                    SortOrder = Enum.SortOrder.LayoutOrder,
+                    VerticalAlignment = Enum.VerticalAlignment.Center
+                })
+
+                local NewKey = Instances:Create("TextLabel", {
+                    Parent = NewKeyContainer.Instance,
                     Name = "\0",
                     FontFace = Library.Font,
                     TextColor3 = FromRGB(255, 255, 255),
                     TextTransparency = 0.5,
                     Text = "(" .. Key .. ") - ".. Name .. "",
-                    Size = UDim2New(1, 0, 0, 20),
+                    Size = UDim2New(0, 0, 0, 20),
                     BorderSizePixel = 0,
                     BackgroundTransparency = 1,
                     TextXAlignment = Enum.TextXAlignment.Left,
@@ -6099,28 +6116,20 @@ do -- Library
                 })  NewKey:AddToTheme({TextColor3 = "Text"})
 
                 local NewKeyStatus = Instances:Create("TextLabel", {
-                    Parent = NewKey.Instance,
+                    Parent = NewKeyContainer.Instance,
                     Name = "\0",
                     FontFace = Library.Font,
                     TextColor3 = FromRGB(255, 255, 255),
                     TextTransparency = 0.5,
                     Text = "off",
                     Size = UDim2New(0, 0, 0, 20),
-                    AnchorPoint = Vector2New(1, 0),
                     BorderSizePixel = 0,
                     BackgroundTransparency = 1,
-                    Position = UDim2New(1, 50, 0, 0),
                     BorderColor3 = FromRGB(0, 0, 0),
                     AutomaticSize = Enum.AutomaticSize.X,
                     TextSize = 14,
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 })  NewKeyStatus:AddToTheme({TextColor3 = "Text"})
-
-                Instances:Create("UIPadding", {
-                    Parent = NewKey.Instance,
-                    Name = "\0",
-                    PaddingRight = UDimNew(0, 50)
-                })
 
                 function NewKey:SetText(Key, Name)
                     NewKey.Instance.Text =  "(" .. Key .. ") - ".. Name .. ""
@@ -6131,11 +6140,11 @@ do -- Library
                 end
 
                 function NewKey:Remove()
-                    NewKey:Clean()
+                    NewKeyContainer:Clean()
                 end
 
                 function NewKey:SetVisibility(Bool)
-                    NewKey.Instance.Visible = Bool
+                    NewKeyContainer.Instance.Visible = Bool
                 end
 
                 function NewKey:Set(Bool)
@@ -8071,7 +8080,7 @@ do -- Library
 
                         PlayerData:Toggle("Active")
 
-                        local PlayerAvatar = "rbxthumb://type=AvatarHeadShot&id=" .. Players.LocalPlayer.UserId .. "&w=420&h=420"
+                        local PlayerAvatar = Players:GetUserThumbnailAsync(Playerlist.Player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
                         Items["PlayerAvatar"].Instance.Image = PlayerAvatar
                         Items["PlayerUsername"].Instance.Text = Playerlist.Player.DisplayName .. " (@" .. Playerlist.Player.Name .. ")"
                         Items["PlayerUserID"].Instance.Text = tostring(Playerlist.Player.UserId)
@@ -9474,6 +9483,5 @@ do -- Library
         end
     end
 end
-
 getgenv().Library = Library
 return Library
