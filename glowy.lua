@@ -1531,7 +1531,7 @@ do -- Library
                     BorderColor3 = FromRGB(0, 0, 0),
                     AnchorPoint = Vector2New(1, 0),
                     BackgroundTransparency = 1,
-                    Position = UDim2New(1, -46, 0, 0),
+                    Position = UDim2New(1, -52, 0, 0),
                     Size = UDim2New(0, 0, 1, 0),
                     BorderSizePixel = 0,
                     AutomaticSize = Enum.AutomaticSize.X,
@@ -1544,7 +1544,7 @@ do -- Library
                     VerticalAlignment = Enum.VerticalAlignment.Center,
                     FillDirection = Enum.FillDirection.Horizontal,
                     HorizontalAlignment = Enum.HorizontalAlignment.Right,
-                    Padding = UDimNew(0, 6),
+                    Padding = UDimNew(0, 10),
                     SortOrder = Enum.SortOrder.LayoutOrder
                 })
             end
@@ -1962,20 +1962,20 @@ do -- Library
                 local CheckImage = Instances:Create("ImageLabel", {
                     Parent = OptionButton.Instance,
                     Name = "\0",
-                    ImageColor3 = FromRGB(196, 231, 255),
+                    ImageColor3 = FromRGB(255, 255, 255),
                     ScaleType = Enum.ScaleType.Fit,
                     BorderColor3 = FromRGB(0, 0, 0),
-                    Size = UDim2New(0, 18, 0, 18),
+                    Size = UDim2New(0, 10, 0, 10),
                     Visible = true,
-                    AnchorPoint = Vector2New(0, 0.5),
-                    Image = "rbxassetid://116339777575852",
+                    AnchorPoint = Vector2New(0.5, 0.5),
+                    Image = "rbxassetid://17604118029",
                     BackgroundTransparency = 1,
-                    Position = UDim2New(0, 3, 0.5, 0),
+                    Position = UDim2New(0, 10, 0.5, 0),
                     ImageTransparency = 1,
                     ZIndex = 5,
                     BorderSizePixel = 0,
                     BackgroundColor3 = FromRGB(255, 255, 255)
-                })  CheckImage:AddToTheme({ImageColor3 = "Accent"})
+                })  CheckImage:AddToTheme({ImageColor3 = "Accent"})  CheckImage:AddToTheme({ImageColor3 = "Accent"})
 
                 Instances:Create("UICorner", {
                     Parent = OptionButton.Instance,
@@ -2644,6 +2644,23 @@ do -- Library
                         BorderSizePixel = 0,
                         BackgroundColor3 = FromRGB(34, 39, 45)
                     })  DropdownItems["RealDropdown"]:AddToTheme({BackgroundColor3 = "Element"})
+
+                    DropdownItems["Icon"] = Instances:Create("ImageLabel", {
+                        Parent = DropdownItems["RealDropdown"].Instance,
+                        Name = "\0",
+                        ImageColor3 = FromRGB(255, 255, 255),
+                        ScaleType = Enum.ScaleType.Fit,
+                        BorderColor3 = FromRGB(0, 0, 0),
+                        Size = UDim2New(0, 14, 0, 14),
+                        AnchorPoint = Vector2New(1, 0.5),
+                        Position = UDim2New(1, -6, 0.5, 0),
+                        Image = "rbxassetid://17604118029",
+                        ImageTransparency = 0,
+                        BackgroundTransparency = 1,
+                        ZIndex = 3,
+                        BorderSizePixel = 0,
+                        BackgroundColor3 = FromRGB(255, 255, 255)
+                    })  DropdownItems["Icon"]:AddToTheme({ImageColor3 = "Text"})
 
                     Instances:Create("UIGradient", {
                         Parent = DropdownItems["RealDropdown"].Instance,
@@ -3476,6 +3493,23 @@ do -- Library
                         BorderSizePixel = 0,
                         BackgroundColor3 = FromRGB(34, 39, 45)
                     })  DropdownItems["RealDropdown"]:AddToTheme({BackgroundColor3 = "Element"})
+
+                    DropdownItems["Icon"] = Instances:Create("ImageLabel", {
+                        Parent = DropdownItems["RealDropdown"].Instance,
+                        Name = "\0",
+                        ImageColor3 = FromRGB(255, 255, 255),
+                        ScaleType = Enum.ScaleType.Fit,
+                        BorderColor3 = FromRGB(0, 0, 0),
+                        Size = UDim2New(0, 14, 0, 14),
+                        AnchorPoint = Vector2New(1, 0.5),
+                        Position = UDim2New(1, -6, 0.5, 0),
+                        Image = "rbxassetid://17604118029",
+                        ImageTransparency = 0,
+                        BackgroundTransparency = 1,
+                        ZIndex = 3,
+                        BorderSizePixel = 0,
+                        BackgroundColor3 = FromRGB(255, 255, 255)
+                    })  DropdownItems["Icon"]:AddToTheme({ImageColor3 = "Text"})
 
                     Instances:Create("UIGradient", {
                         Parent = DropdownItems["RealDropdown"].Instance,
@@ -6225,6 +6259,23 @@ do -- Library
                     BackgroundTransparency = function() return Library.Theme["Sidebar Transparency"] or 0 end
                 })
 
+                Items["Profile"] = Instances:Create("ImageLabel", {
+                    Parent = Items["Pages"].Instance,
+                    Name = "\0",
+                    Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.AvatarHeadShot, Enum.ThumbnailSize.Size420x420),
+                    BackgroundTransparency = 1,
+                    Position = UDim2New(0, 11, 1, -50),
+                    Size = UDim2New(0, 40, 0, 40),
+                    ZIndex = 4,
+                    BorderSizePixel = 0
+                })
+
+                Instances:Create("UICorner", {
+                    Parent = Items["Profile"].Instance,
+                    Name = "\0",
+                    CornerRadius = UDimNew(0, 5)
+                })
+
                 Instances:Create("UICorner", {
                     Parent = Items["Pages"].Instance,
                     Name = "\0",
@@ -7499,6 +7550,23 @@ do -- Library
                         BackgroundColor3 = FromRGB(34, 39, 45)
                     })  DropdownItems["RealDropdown"]:AddToTheme({BackgroundColor3 = "Element"})
 
+                    DropdownItems["Icon"] = Instances:Create("ImageLabel", {
+                        Parent = DropdownItems["RealDropdown"].Instance,
+                        Name = "\0",
+                        ImageColor3 = FromRGB(255, 255, 255),
+                        ScaleType = Enum.ScaleType.Fit,
+                        BorderColor3 = FromRGB(0, 0, 0),
+                        Size = UDim2New(0, 14, 0, 14),
+                        AnchorPoint = Vector2New(1, 0.5),
+                        Position = UDim2New(1, -6, 0.5, 0),
+                        Image = "rbxassetid://17604118029",
+                        ImageTransparency = 0,
+                        BackgroundTransparency = 1,
+                        ZIndex = 3,
+                        BorderSizePixel = 0,
+                        BackgroundColor3 = FromRGB(255, 255, 255)
+                    })  DropdownItems["Icon"]:AddToTheme({ImageColor3 = "Text"})
+
                     Instances:Create("UIGradient", {
                         Parent = DropdownItems["RealDropdown"].Instance,
                         Name = "\0",
@@ -8049,38 +8117,46 @@ do -- Library
                     end
 
                     if Value == "Neutral" then
-                        Playerlist.Players[Playerlist.Player.Name].PlayerStatus:Tween(nil, {
-                            TextColor3 = Library.Theme["Inactive Text"]
-                        })
+                        if Playerlist.Players[Playerlist.Player.Name] then
+                            Playerlist.Players[Playerlist.Player.Name].PlayerStatus:Tween(nil, {
+                                TextColor3 = Library.Theme["Inactive Text"]
+                            })
 
-                        Playerlist.Players[Playerlist.Player.Name].PlayerStatus.Instance.Text = "Neutral"
+                            Playerlist.Players[Playerlist.Player.Name].PlayerStatus.Instance.Text = "Neutral"
+                        end
                         if table.find(Library.Friendly_Players, Playerlist.Player.Name) then
                             table.remove(Library.Friendly_Players, table.find(Library.Friendly_Players, Playerlist.Player.Name))
                         end
                     elseif Value == "Priority" then
-                        Playerlist.Players[Playerlist.Player.Name].PlayerStatus:Tween(nil, {
-                            TextColor3 = FromRGB(255, 50, 50)
-                        })
+                        if Playerlist.Players[Playerlist.Player.Name] then
+                            Playerlist.Players[Playerlist.Player.Name].PlayerStatus:Tween(nil, {
+                                TextColor3 = FromRGB(255, 50, 50)
+                            })
 
-                        Playerlist.Players[Playerlist.Player.Name].PlayerStatus.Instance.Text = "Priority"
+                            Playerlist.Players[Playerlist.Player.Name].PlayerStatus.Instance.Text = "Priority"
+                        end
                         if table.find(Library.Friendly_Players, Playerlist.Player.Name) then
                             table.remove(Library.Friendly_Players, table.find(Library.Friendly_Players, Playerlist.Player.Name))
                         end
                     elseif Value == "Friendly" then
-                        Playerlist.Players[Playerlist.Player.Name].PlayerStatus:Tween(nil, {
-                            TextColor3 = FromRGB(83, 255, 83)
-                        })
+                        if Playerlist.Players[Playerlist.Player.Name] then
+                            Playerlist.Players[Playerlist.Player.Name].PlayerStatus:Tween(nil, {
+                                TextColor3 = FromRGB(83, 255, 83)
+                            })
 
-                        Playerlist.Players[Playerlist.Player.Name].PlayerStatus.Instance.Text = "Friendly"
+                            Playerlist.Players[Playerlist.Player.Name].PlayerStatus.Instance.Text = "Friendly"
+                        end
                         if not table.find(Library.Friendly_Players, Playerlist.Player.Name) then
                             table.insert(Library.Friendly_Players, Playerlist.Player.Name)
                         end
                     else
-                        Playerlist.Players[Playerlist.Player.Name].PlayerStatus:Tween(nil, {
-                            TextColor3 = Library.Theme["Inactive Text"]
-                        })
+                        if Playerlist.Players[Playerlist.Player.Name] then
+                            Playerlist.Players[Playerlist.Player.Name].PlayerStatus:Tween(nil, {
+                                TextColor3 = Library.Theme["Inactive Text"]
+                            })
 
-                        Playerlist.Players[Playerlist.Player.Name].PlayerStatus.Instance.Text = "Neutral"
+                            Playerlist.Players[Playerlist.Player.Name].PlayerStatus.Instance.Text = "Neutral"
+                        end
                         if table.find(Library.Friendly_Players, Playerlist.Player.Name) then
                             table.remove(Library.Friendly_Players, table.find(Library.Friendly_Players, Playerlist.Player.Name))
                         end
@@ -9385,6 +9461,22 @@ do -- Library
                     Duration = 5,
                     Icon = "116339777575852",
                     IconColor = Color3.fromRGB(52, 255, 164)
+                })
+            else
+                Library:Notification({
+                    Name = "Error!",
+                    Description = "Failed to load autoload theme, error:\n" .. Result,
+                    Duration = 5,
+                    Icon = "97118059177470",
+                    IconColor = Color3.fromRGB(255, 120, 120)
+                })
+            end
+        end
+    end
+end
+getgenv().Library = Library
+return Library
+B(52, 255, 164)
                 })
             else
                 Library:Notification({
